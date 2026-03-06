@@ -1,0 +1,42 @@
+export type CalculationResult = {
+  workerName: string;
+  toplamsigortagun: number;
+  argefaaliyetgunsayisi: number;
+  argegelirvergisigunsayisi: number;
+  aylikbrutkazanc: number;
+  argebrutucret: number;
+  argebrutkazancfarki: number;
+  toplamiscisskprimtutari: number;
+  issizlikiscipayitutari: number;
+  gelirvergisimatrahi: number;
+  argegelirvergisimatrahi: number;
+  artigvmatrahi: number;
+  gelirvergisitutari: number;
+  argegelirvergisitutari: number;
+  gvistisnatutari: number;
+  asgariucretgvistisnasi: number;
+  argeasgariucretgvistisnasi: number;
+  asgariucretdvistisnasi: number;
+  argeasgariucretdvistisnasi: number;
+  odenecekgelirvergisi: number;
+  damgavergisitutari: number;
+  odenecekdamgavergisi: number;
+  ayliknetkazanc: number;
+  mahsupedilecekagi: number;
+  issizlikisverenpayitutari: number;
+  toplamisverensskprimtutari: number;
+  icratutari: number;
+  nafakatutari: number;
+  bes_kesinti_tutari: number;
+  yemekyardiminet: number;
+  yemekyardimibrut: number;
+  isvozelsagliksigortasibrut: number;
+  isvozelsagliksigortasinet: number;
+  employerCostWithoutIncentive: number;
+  employerCostWithIncentive: number;
+};
+
+export type GetCalculationsResponse = {
+  message: string;
+  calculations: CalculationResult[];
+};

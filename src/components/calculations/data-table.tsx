@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -36,8 +37,14 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
+                const sticky = (header.column.columnDef.meta as { sticky?: boolean } | undefined)?.sticky;
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      sticky && "sticky left-0 z-10 bg-[#141414] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
+                    )}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -57,11 +64,19 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const sticky = (cell.column.columnDef.meta as { sticky?: boolean } | undefined)?.sticky;
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        sticky && "sticky left-0 z-10 bg-[#0a0a0a] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
+                      )}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (

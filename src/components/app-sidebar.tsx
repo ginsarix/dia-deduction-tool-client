@@ -1,6 +1,11 @@
 "use client";
 
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import {
+  ClockIcon,
+  IdCardLanyardIcon,
+  PlugIcon,
+  SquareTerminal,
+} from "lucide-react";
 import type * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -14,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  // This is sample data.
   const data = {
     user: {
       name: "shadcn",
@@ -23,105 +27,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     navMain: [
       {
-        title: "Playground",
-        url: "#",
+        title: "Projeler",
+        url: "/projects",
         icon: SquareTerminal,
         isActive: true,
-        items: [
-          {
-            title: "History",
-            url: "#",
-          },
-          {
-            title: "Starred",
-            url: "#",
-          },
-          {
-            title: "Settings",
-            url: "#",
-          },
-        ],
+        items: [],
       },
       {
-        title: "Models",
-        url: "#",
-        icon: Bot,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
+        title: "Bağlantılar",
+        url: "/connections",
+        icon: PlugIcon,
+        items: [],
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
+        title: "Personeller",
+        url: "/workers",
+        icon: IdCardLanyardIcon,
+        items: [],
       },
       {
-        title: "Settings",
-        url: "#",
-        icon: Settings2,
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
-            url: "#",
-          },
-        ],
+        title: "Saat Tanımlamaları",
+        url: "/hour-definitions",
+        icon: ClockIcon,
+        items: [],
       },
     ],
   };
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <span className="font-bold text-nowrap overflow-hidden text-center ">
-          AR-GE Merkez Hesaplama
-        </span>
+      <SidebarHeader className="px-3 py-3">
+        <div className="flex items-center gap-2.5 px-1 overflow-hidden">
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-semibold text-[#e0e0e0] truncate leading-tight">
+              AR-GE Merkez Hesaplama
+            </span>
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

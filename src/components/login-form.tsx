@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -43,6 +45,8 @@ export function LoginForm({
 
     if (result.error) {
       toast(result.error.message);
+    } else {
+      navigate("/projects");
     }
   });
 
