@@ -1,4 +1,4 @@
-import { Moon, Sun } from "lucide-react";
+import { MonitorIcon, Moon, MoonIcon, Sun, SunIcon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,28 +7,38 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="ghost" size="icon">
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">Tema değiştir</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
+        <DropdownMenuItem
+          className={cn(theme === "light" && "bg-accent")}
+          onClick={() => setTheme("light")}
+        >
+          <SunIcon /> Açık
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
+        <DropdownMenuItem
+          className={cn(theme === "dark" && "bg-accent")}
+          onClick={() => setTheme("dark")}
+        >
+          <MoonIcon /> Koyu
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
+        <DropdownMenuItem
+          className={cn(theme === "system" && "bg-accent")}
+          onClick={() => setTheme("system")}
+        >
+          <MonitorIcon /> Sistem
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

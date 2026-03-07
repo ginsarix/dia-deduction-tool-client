@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="px-3 py-3">
         <div className="flex items-center gap-2.5 px-1 overflow-hidden">
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-semibold text-[#e0e0e0] truncate leading-tight">
+            <span className="text-sm font-semibold text-accent-foreground truncate leading-tight">
               AR-GE Merkez Hesaplama
             </span>
           </div>

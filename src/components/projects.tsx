@@ -223,7 +223,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
       <SheetContent className="sm:max-w-xl p-0 flex flex-col">
         <SheetHeader
           className="px-6 py-5"
-          style={{ borderBottom: "1px solid #1f1f1f" }}
+          style={{ borderBottom: "1px solid var(--app-panel-border)" }}
         >
           <SheetTitle>Yeni Proje</SheetTitle>
         </SheetHeader>
@@ -236,7 +236,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
             {/* Project fields */}
             <div>
-              <p className="text-xs font-mono text-[#525252] uppercase tracking-widest mb-4">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
                 Proje Bilgileri
               </p>
               <FieldGroup>
@@ -252,7 +252,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                 <Field>
                   <FieldLabel htmlFor="create-proj-number">
                     Proje Numarası{" "}
-                    <span className="text-[#525252] font-normal">
+                    <span className="text-muted-foreground font-normal">
                       (opsiyonel)
                     </span>
                   </FieldLabel>
@@ -339,7 +339,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                 <Field>
                   <FieldLabel>Bağlantı</FieldLabel>
                   {connectionsLoading ? (
-                    <p className="text-sm font-mono text-[#383838]">
+                    <p className="text-sm font-mono text-muted-foreground">
                       Bağlantı yükleniyor…
                     </p>
                   ) : connections.length > 0 ? (
@@ -357,7 +357,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                     </Select>
                   ) : (
                     <>
-                      <span className="text-xs font-mono text-[#383838]">
+                      <span className="text-xs font-mono text-muted-foreground">
                         Bağlantı bulunamadı
                       </span>{" "}
                       <Button
@@ -378,7 +378,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
             {selectedConnectionId !== null && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-mono text-[#525252] uppercase tracking-widest">
+                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
                     Personel Atamaları
                   </p>
                   {selectedWorkerCount > 0 && (
@@ -393,11 +393,11 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
 
                 {/* Hour definition creation */}
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs font-mono text-[#404040] flex-shrink-0">
+                  <span className="text-xs font-mono text-muted-foreground flex-shrink-0">
                     Saat tanımlaması ekle
                   </span>
                   {hourDefsLoading ? (
-                    <Loader2Icon className="animate-spin w-3.5 h-3.5 text-[#383838]" />
+                    <Loader2Icon className="animate-spin w-3.5 h-3.5 text-muted-foreground" />
                   ) : (
                     <div className="flex items-center gap-1">
                       <Input
@@ -419,7 +419,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                         type="button"
                         size="icon-sm"
                         variant="ghost"
-                        className="cursor-pointer h-7 w-7 text-[#525252] hover:text-[#c8c8c8]"
+                        className="cursor-pointer h-7 w-7 text-muted-foreground hover:text-foreground"
                         onClick={handleAddHourDef}
                         disabled={addingHourDef}
                       >
@@ -437,7 +437,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                         <Badge
                           key={hd.id}
                           variant="outline"
-                          className="text-xs px-2 py-0 h-5 font-mono text-[#525252] border-[#2a2a2a]"
+                          className="text-xs px-2 py-0 h-5 font-mono text-muted-foreground border-[#2a2a2a]"
                         >
                           ×{hd.multiplier}
                         </Badge>
@@ -448,11 +448,11 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
 
                 {workersLoading ? (
                   <div className="flex items-center justify-center py-6">
-                    <Loader2Icon className="animate-spin text-[#383838]" />
+                    <Loader2Icon className="animate-spin text-muted-foreground" />
                   </div>
                 ) : filteredWorkers.length === 0 ? (
                   <>
-                    <p className="text-sm font-mono text-[#383838] py-4 text-center">
+                    <p className="text-sm font-mono text-muted-foreground py-4 text-center">
                       Bu bağlantıya ait personel bulunamadı
                     </p>{" "}
                     <Button
@@ -474,10 +474,10 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                           key={worker.id}
                           className="rounded-lg transition-colors"
                           style={{
-                            background: isSelected ? "#111111" : "#0c0c0c",
+                            background: isSelected ? "var(--app-row-odd)" : "var(--app-row-even)",
                             border: isSelected
-                              ? "1px solid #2a2a2a"
-                              : "1px solid #1a1a1a",
+                              ? "1px solid var(--app-table-header-border)"
+                              : "1px solid var(--app-row-border)",
                           }}
                         >
                           <label
@@ -493,13 +493,13 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                               className={cn(
                                 "text-sm font-medium transition-colors",
                                 isSelected
-                                  ? "text-[#c8c8c8]"
-                                  : "text-[#525252]",
+                                  ? "text-foreground"
+                                  : "text-muted-foreground",
                               )}
                             >
                               {worker.name}
                             </span>
-                            <span className="text-xs font-mono text-[#383838] ml-auto">
+                            <span className="text-xs font-mono text-muted-foreground ml-auto">
                               {worker.diaKey}
                             </span>
                           </label>
@@ -507,16 +507,16 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                           {isSelected && (
                             <div
                               className="px-4 pb-3"
-                              style={{ borderTop: "1px solid #1f1f1f" }}
+                              style={{ borderTop: "1px solid var(--app-panel-border)" }}
                             >
                               <div className="flex items-center gap-3 pt-3">
-                                <span className="text-xs font-mono text-[#404040] flex-shrink-0">
+                                <span className="text-xs font-mono text-muted-foreground flex-shrink-0">
                                   Saat tanımlaması
                                 </span>
                                 {hourDefsLoading ? (
-                                  <Loader2Icon className="animate-spin w-3.5 h-3.5 text-[#383838]" />
+                                  <Loader2Icon className="animate-spin w-3.5 h-3.5 text-muted-foreground" />
                                 ) : hourDefinitions.length === 0 ? (
-                                  <span className="text-xs font-mono text-[#383838]">
+                                  <span className="text-xs font-mono text-muted-foreground">
                                     Yukarıdan tanımlama ekleyiniz
                                   </span>
                                 ) : (
@@ -559,7 +559,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
 
           <SheetFooter
             className="px-6 py-4"
-            style={{ borderTop: "1px solid #1f1f1f" }}
+            style={{ borderTop: "1px solid var(--app-panel-border)" }}
           >
             <Button
               type="submit"
@@ -594,10 +594,13 @@ function ProjectCard({ project }: ProjectCardProps) {
       onMouseLeave={() => setHovered(false)}
       className={cn(
         "cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col",
-        hovered
-          ? "[background:linear-gradient(135deg,#1a1a1a_0%,#242424_100%)] border-[#3d3d3d] shadow-[0_0_0_1px_#3a3a3a,0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)] -translate-y-0.5"
-          : "[background:linear-gradient(135deg,#141414_0%,#1c1c1c_100%)] border-[#2a2a2a] shadow-[0_2px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.02)]",
+        hovered ? "-translate-y-0.5" : "",
       )}
+      style={{
+        background: hovered ? "var(--app-card-bg-hover)" : "var(--app-card-bg)",
+        borderColor: hovered ? "var(--app-card-border-hover)" : "var(--app-card-border)",
+        boxShadow: hovered ? "var(--app-card-shadow-hover)" : "var(--app-card-shadow)",
+      }}
     >
       {/* Top accent line */}
       <div
@@ -615,12 +618,12 @@ function ProjectCard({ project }: ProjectCardProps) {
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
               style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }}
             />
-            <span className="text-xs font-mono tracking-wide truncate text-[#525252]">
+            <span className="text-xs font-mono tracking-wide truncate text-muted-foreground">
               {project.connectionName}
             </span>
           </div>
           {project.project.number != null && (
-            <span className="text-xs font-mono text-[#383838] flex-shrink-0">
+            <span className="text-xs font-mono text-muted-foreground flex-shrink-0">
               #{project.project.number}
             </span>
           )}
@@ -631,7 +634,7 @@ function ProjectCard({ project }: ProjectCardProps) {
         <h3
           className={cn(
             "text-lg font-semibold leading-tight transition-colors duration-200",
-            hovered ? "text-[#e8e8e8]" : "text-[#c8c8c8]",
+            hovered ? "text-foreground" : "text-foreground/80",
           )}
           style={{ letterSpacing: "-0.02em" }}
         >
@@ -639,7 +642,7 @@ function ProjectCard({ project }: ProjectCardProps) {
         </h3>
 
         <div className="flex flex-col gap-2 mt-auto">
-          <div className="flex items-center gap-1.5 text-xs font-mono text-[#3a3a3a]">
+          <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
             <CalendarIcon className="w-3 h-3 flex-shrink-0" />
             <span>
               {format(new Date(project.project.startDate), "dd.MM.yyyy")}
@@ -650,8 +653,8 @@ function ProjectCard({ project }: ProjectCardProps) {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <IdCardLanyardIcon className="w-3.5 h-3.5 text-[#404040]" />
-              <span className="text-xs font-mono text-[#484848]">Personel:</span>
+              <IdCardLanyardIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-xs font-mono text-muted-foreground">Personel:</span>
               <Badge
                 variant="outline"
                 className="text-xs px-2 py-0 h-5 font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
@@ -662,7 +665,7 @@ function ProjectCard({ project }: ProjectCardProps) {
 
             <ArrowRightIcon
               className={cn(
-                "w-3.5 h-3.5 text-[#525252] transition-all duration-200",
+                "w-3.5 h-3.5 text-muted-foreground transition-all duration-200",
                 hovered
                   ? "opacity-100 translate-x-0"
                   : "opacity-0 -translate-x-1",
@@ -688,25 +691,25 @@ export default function Projects() {
   }, [error]);
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 bg-[#0a0a0a] font-sans">
+    <div className="min-h-screen p-4 sm:p-8 bg-background font-sans">
       <div
         className="max-w-4xl mx-auto rounded-2xl p-4 sm:p-8"
         style={{
-          background: "linear-gradient(160deg, #111111 0%, #0e0e0e 100%)",
-          border: "1px solid #1f1f1f",
-          boxShadow: "0 0 0 1px #161616, 0 24px 80px rgba(0,0,0,0.8)",
+          background: "var(--app-panel-bg)",
+          border: "1px solid var(--app-panel-border)",
+          boxShadow: "var(--app-panel-shadow)",
         }}
       >
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1
-              className="text-2xl font-semibold tracking-tight mb-1 text-[#e0e0e0]"
+              className="text-2xl font-semibold tracking-tight mb-1 text-foreground"
               style={{ letterSpacing: "-0.03em" }}
             >
               Projeler
             </h1>
-            <p className="text-sm font-mono text-[#383838]">
+            <p className="text-sm font-mono text-muted-foreground">
               {data && <span>{data.projects.length} aktif projeler</span>}
             </p>
           </div>
@@ -722,7 +725,7 @@ export default function Projects() {
           </div>
         ) : (
           <div className="flex items-center justify-center py-16">
-            <Loader2Icon className="animate-spin text-[#383838]" />
+            <Loader2Icon className="animate-spin text-muted-foreground" />
           </div>
         )}
       </div>

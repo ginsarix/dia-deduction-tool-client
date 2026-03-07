@@ -42,7 +42,7 @@ export function DataTable<TData, TValue>({
                   <TableHead
                     key={header.id}
                     className={cn(
-                      sticky && "sticky left-0 z-10 bg-[#141414] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
+                      sticky && "sticky left-0 z-10 bg-[var(--app-sticky-header)] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
                     )}
                   >
                     {header.isPlaceholder
@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
                     <TableCell
                       key={cell.id}
                       className={cn(
-                        sticky && "sticky left-0 z-10 bg-[#0a0a0a] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
+                        sticky && "sticky left-0 z-10 bg-[var(--app-sticky-body)] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

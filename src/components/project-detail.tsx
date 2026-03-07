@@ -6,8 +6,8 @@ import {
   ClockIcon,
   Loader2Icon,
   PencilIcon,
-  PlayIcon,
   PlusIcon,
+  RefreshCwIcon,
   Trash2Icon,
   UsersIcon,
 } from "lucide-react";
@@ -17,6 +17,8 @@ import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { z } from "zod";
+import { columns } from "@/components/calculations/columns";
+import { DataTable } from "@/components/calculations/data-table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +40,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Field,
   FieldError,
@@ -65,8 +67,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { DataTable } from "@/components/calculations/data-table";
-import { columns } from "@/components/calculations/columns";
 import { API_BASE_URL } from "@/config/api";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
@@ -178,7 +178,7 @@ function EditProjectDialog({
         <Button
           size="sm"
           variant="ghost"
-          className="cursor-pointer gap-1.5 text-[#727272] hover:text-[#c8c8c8]"
+          className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <PencilIcon className="w-3.5 h-3.5" />
           Düzenle
@@ -202,7 +202,9 @@ function EditProjectDialog({
             <Field>
               <FieldLabel htmlFor="edit-project-number">
                 Proje Numarası{" "}
-                <span className="text-[#525252] font-normal">(opsiyonel)</span>
+                <span className="text-muted-foreground font-normal">
+                  (opsiyonel)
+                </span>
               </FieldLabel>
               <Input
                 {...register("number")}
@@ -225,7 +227,9 @@ function EditProjectDialog({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "dd.MM.yyyy") : "Tarih seçiniz"}
+                    {startDate
+                      ? format(startDate, "dd.MM.yyyy")
+                      : "Tarih seçiniz"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -234,9 +238,13 @@ function EditProjectDialog({
                     selected={startDate}
                     onSelect={(date) => {
                       setStartDate(date);
-                      setValue("startDate", date ? format(date, "yyyy-MM-dd") : "", {
-                        shouldValidate: true,
-                      });
+                      setValue(
+                        "startDate",
+                        date ? format(date, "yyyy-MM-dd") : "",
+                        {
+                          shouldValidate: true,
+                        },
+                      );
                     }}
                   />
                 </PopoverContent>
@@ -265,9 +273,13 @@ function EditProjectDialog({
                     selected={endDate}
                     onSelect={(date) => {
                       setEndDate(date);
-                      setValue("endDate", date ? format(date, "yyyy-MM-dd") : "", {
-                        shouldValidate: true,
-                      });
+                      setValue(
+                        "endDate",
+                        date ? format(date, "yyyy-MM-dd") : "",
+                        {
+                          shouldValidate: true,
+                        },
+                      );
                     }}
                   />
                 </PopoverContent>
@@ -349,7 +361,8 @@ function EditWorkersSheet({
       setAddWorkerId("");
       setAddHourDefId("");
     }
-  }, [open, currentWorkers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const assignedWorkerIds = new Set(assignments.map((a) => a.workerId));
   const availableWorkers = allWorkers.filter(
@@ -404,7 +417,7 @@ function EditWorkersSheet({
         <Button
           size="sm"
           variant="ghost"
-          className="cursor-pointer gap-1.5 text-[#727272] hover:text-[#c8c8c8]"
+          className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <UsersIcon className="w-3.5 h-3.5" />
           Düzenle
@@ -413,7 +426,7 @@ function EditWorkersSheet({
       <SheetContent className="sm:max-w-md p-0 flex flex-col">
         <SheetHeader
           className="px-6 py-5"
-          style={{ borderBottom: "1px solid #1f1f1f" }}
+          style={{ borderBottom: "1px solid var(--app-panel-border)" }}
         >
           <SheetTitle>Personelleri Düzenle</SheetTitle>
         </SheetHeader>
@@ -429,15 +442,15 @@ function EditWorkersSheet({
                     key={a.workerId}
                     className="flex items-center gap-2 rounded-lg p-2"
                     style={{
-                      background: "#111111",
-                      border: "1px solid #1f1f1f",
+                      background: "var(--app-row-odd)",
+                      border: "1px solid var(--app-panel-border)",
                     }}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-[#c8c8c8] truncate">
+                      <p className="text-sm text-foreground truncate">
                         {worker?.name ?? `#${a.workerId}`}
                       </p>
-                      <p className="text-xs font-mono text-[#404040] truncate">
+                      <p className="text-xs font-mono text-muted-foreground truncate">
                         {worker?.diaKey}
                       </p>
                     </div>
@@ -461,7 +474,7 @@ function EditWorkersSheet({
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      className="cursor-pointer text-[#525252] hover:text-red-400 flex-shrink-0"
+                      className="cursor-pointer text-muted-foreground hover:text-red-400 flex-shrink-0"
                       onClick={() => handleRemove(a.workerId)}
                     >
                       <Trash2Icon className="w-3.5 h-3.5" />
@@ -471,7 +484,7 @@ function EditWorkersSheet({
               })}
             </div>
           ) : (
-            <p className="text-sm font-mono text-[#383838] text-center py-4">
+            <p className="text-sm font-mono text-muted-foreground text-center py-4">
               Henüz personel atanmamış
             </p>
           )}
@@ -480,9 +493,14 @@ function EditWorkersSheet({
           {availableWorkers.length > 0 && hourDefinitions.length > 0 && (
             <div
               className="rounded-lg p-3 space-y-2"
-              style={{ background: "#0e0e0e", border: "1px solid #1a1a1a" }}
+              style={{
+                background: "var(--app-inset-bg)",
+                border: "1px solid var(--app-inset-border)",
+              }}
             >
-              <p className="text-xs font-mono text-[#525252]">Personel Ekle</p>
+              <p className="text-xs font-mono text-muted-foreground">
+                Personel Ekle
+              </p>
               <Select value={addWorkerId} onValueChange={setAddWorkerId}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Personel seç" />
@@ -523,7 +541,7 @@ function EditWorkersSheet({
 
         <SheetFooter
           className="px-6 py-4"
-          style={{ borderTop: "1px solid #1f1f1f" }}
+          style={{ borderTop: "1px solid var(--app-panel-border)" }}
         >
           <Button
             className="cursor-pointer w-full"
@@ -589,24 +607,15 @@ export default function ProjectDetail() {
   const connections = connectionsData?.connections ?? [];
   const connectionMap = new Map(connections.map((c) => [c.id, c.name]));
 
-  const [calculations, setCalculations] = useState<
-    GetCalculationsResponse["calculations"] | null
-  >(null);
-  const [calculationsLoading, setCalculationsLoading] = useState(false);
-
-  const handleCalculate = async () => {
-    setCalculationsLoading(true);
-    try {
-      const data = (await fetcher(
-        `${API_BASE_URL}/projects/${id}/calculations`,
-      )) as GetCalculationsResponse;
-      setCalculations(data.calculations);
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Hesaplamalar alınamadı");
-    } finally {
-      setCalculationsLoading(false);
-    }
-  };
+  const {
+    data: calculationsData,
+    isLoading: calculationsLoading,
+    mutate: mutateCalculations,
+  } = useSWR<GetCalculationsResponse>(
+    id ? `${API_BASE_URL}/projects/${id}/calculations` : null,
+    fetcher,
+  );
+  const calculations = calculationsData?.calculations ?? null;
 
   const [deletingProject, setDeletingProject] = useState(false);
 
@@ -626,16 +635,18 @@ export default function ProjectDetail() {
 
   if (projectLoading) {
     return (
-      <div className="min-h-screen p-4 sm:p-8 bg-[#0a0a0a] font-sans flex items-center justify-center">
-        <Loader2Icon className="animate-spin text-[#383838]" />
+      <div className="min-h-screen p-4 sm:p-8 bg-background font-sans flex items-center justify-center">
+        <Loader2Icon className="animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!projectData?.project) {
     return (
-      <div className="min-h-screen p-4 sm:p-8 bg-[#0a0a0a] font-sans flex items-center justify-center">
-        <p className="text-sm font-mono text-[#383838]">Proje bulunamadı</p>
+      <div className="min-h-screen p-4 sm:p-8 bg-background font-sans flex items-center justify-center">
+        <p className="text-sm font-mono text-muted-foreground">
+          Proje bulunamadı
+        </p>
       </div>
     );
   }
@@ -643,310 +654,313 @@ export default function ProjectDetail() {
   const project = projectData.project;
 
   return (
-    <div className="min-w-0 bg-[#0a0a0a] font-sans">
-    <div className="p-4 sm:p-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Back */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="cursor-pointer gap-1.5 text-[#525252] hover:text-[#c8c8c8] -ml-2"
-          onClick={() => navigate("/projects")}
-        >
-          <ArrowLeftIcon className="w-3.5 h-3.5" />
-          Projelere dön
-        </Button>
+    <div className="min-w-0 bg-background font-sans">
+      <div className="p-4 sm:p-8">
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Back */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground -ml-2"
+            onClick={() => navigate("/projects")}
+          >
+            <ArrowLeftIcon className="w-3.5 h-3.5" />
+            Projelere dön
+          </Button>
 
-        {/* Project Info Card */}
-        <div
-          className="rounded-2xl p-4 sm:p-8"
-          style={{
-            background: "linear-gradient(160deg, #111111 0%, #0e0e0e 100%)",
-            border: "1px solid #1f1f1f",
-            boxShadow: "0 0 0 1px #161616, 0 24px 80px rgba(0,0,0,0.8)",
-          }}
-        >
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div
-                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                  style={{
-                    background: "#4ade80",
-                    boxShadow: "0 0 6px #4ade80",
-                  }}
-                />
-                <span className="text-xs font-mono tracking-wide text-[#525252]">
-                  {connectionMap.get(project.connectionId) ??
-                    `Bağlantı #${project.connectionId}`}
-                </span>
-              </div>
-              <h1
-                className="text-2xl font-semibold text-[#e0e0e0]"
-                style={{ letterSpacing: "-0.03em" }}
-              >
-                {project.name}
-              </h1>
-              {project.number !== null && (
-                <Badge
-                  variant="outline"
-                  className="mt-2 text-xs font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
+          {/* Project Info Card */}
+          <div
+            className="rounded-2xl p-4 sm:p-8"
+            style={{
+              background: "var(--app-panel-bg)",
+              border: "1px solid var(--app-panel-border)",
+              boxShadow: "var(--app-panel-shadow)",
+            }}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: "#4ade80",
+                      boxShadow: "0 0 6px #4ade80",
+                    }}
+                  />
+                  <span className="text-xs font-mono tracking-wide text-muted-foreground">
+                    {connectionMap.get(project.connectionId) ??
+                      `Bağlantı #${project.connectionId}`}
+                  </span>
+                </div>
+                <h1
+                  className="text-2xl font-semibold text-foreground"
+                  style={{ letterSpacing: "-0.03em" }}
                 >
-                  Proje No: #{project.number}
-                </Badge>
-              )}
+                  {project.name}
+                </h1>
+                {project.number !== null && (
+                  <Badge
+                    variant="outline"
+                    className="mt-2 text-xs font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
+                  >
+                    Proje No: #{project.number}
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <EditProjectDialog
+                  project={project}
+                  connections={connections}
+                  onSuccess={() => mutateProject()}
+                />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="cursor-pointer gap-1.5 text-muted-foreground hover:text-red-400"
+                    >
+                      <Trash2Icon className="w-3.5 h-3.5" />
+                      Sil
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Projeyi sil</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <span className="font-semibold text-foreground">
+                          {project.name}
+                        </span>{" "}
+                        projesini silmek istediğinizden emin misiniz? Bu işlem
+                        geri alınamaz.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="cursor-pointer">
+                        İptal
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="destructive"
+                        className="cursor-pointer"
+                        onClick={handleDeleteProject}
+                        disabled={deletingProject}
+                      >
+                        {deletingProject ? (
+                          <Loader2Icon className="animate-spin w-4 h-4" />
+                        ) : (
+                          "Sil"
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              <EditProjectDialog
-                project={project}
-                connections={connections}
-                onSuccess={() => mutateProject()}
-              />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="cursor-pointer gap-1.5 text-[#727272] hover:text-red-400"
-                  >
-                    <Trash2Icon className="w-3.5 h-3.5" />
-                    Sil
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Projeyi sil</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <span className="font-semibold text-[#e0e0e0]">
-                        {project.name}
-                      </span>{" "}
-                      projesini silmek istediğinizden emin misiniz? Bu işlem
-                      geri alınamaz.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="cursor-pointer">
-                      İptal
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      variant="destructive"
-                      className="cursor-pointer"
-                      onClick={handleDeleteProject}
-                      disabled={deletingProject}
-                    >
-                      {deletingProject ? (
-                        <Loader2Icon className="animate-spin w-4 h-4" />
-                      ) : (
-                        "Sil"
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                className="rounded-xl p-4"
+                style={{
+                  background: "var(--app-inset-bg)",
+                  border: "1px solid var(--app-inset-border)",
+                }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs font-mono text-muted-foreground">
+                    Başlangıç
+                  </span>
+                </div>
+                <p className="text-sm font-mono text-foreground">
+                  {project.startDate}
+                </p>
+              </div>
+              <div
+                className="rounded-xl p-4"
+                style={{
+                  background: "var(--app-inset-bg)",
+                  border: "1px solid var(--app-inset-border)",
+                }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs font-mono text-muted-foreground">
+                    Bitiş
+                  </span>
+                </div>
+                <p className="text-sm font-mono text-foreground">
+                  {project.endDate}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div
-              className="rounded-xl p-4"
-              style={{
-                background: "#0e0e0e",
-                border: "1px solid #1a1a1a",
-              }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <CalendarIcon className="w-3.5 h-3.5 text-[#404040]" />
-                <span className="text-xs font-mono text-[#404040]">
-                  Başlangıç
-                </span>
+          {/* Workers Section */}
+          <div
+            className="rounded-2xl p-4 sm:p-8"
+            style={{
+              background: "var(--app-panel-bg)",
+              border: "1px solid var(--app-panel-border)",
+              boxShadow: "var(--app-panel-shadow)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2
+                  className="text-lg font-semibold text-foreground"
+                  style={{ letterSpacing: "-0.02em" }}
+                >
+                  Personeller
+                </h2>
+                <p className="text-sm font-mono text-muted-foreground">
+                  {workersData && (
+                    <span>{workersData.workers.length} personel</span>
+                  )}
+                </p>
               </div>
-              <p className="text-sm font-mono text-[#c8c8c8]">
-                {project.startDate}
-              </p>
+              <EditWorkersSheet
+                projectId={project.id}
+                currentWorkers={workersData?.workers ?? []}
+                allWorkers={allWorkersData?.workers ?? []}
+                hourDefinitions={hourDefinitionsData?.hourDefinitions ?? []}
+                onSuccess={() => mutateWorkers()}
+              />
             </div>
-            <div
-              className="rounded-xl p-4"
-              style={{
-                background: "#0e0e0e",
-                border: "1px solid #1a1a1a",
-              }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <CalendarIcon className="w-3.5 h-3.5 text-[#404040]" />
-                <span className="text-xs font-mono text-[#404040]">Bitiş</span>
+
+            {workersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2Icon className="animate-spin text-muted-foreground" />
               </div>
-              <p className="text-sm font-mono text-[#c8c8c8]">
-                {project.endDate}
-              </p>
-            </div>
+            ) : workersData && workersData.workers.length > 0 ? (
+              <div
+                className="rounded-xl overflow-hidden"
+                style={{ border: "1px solid var(--app-panel-border)" }}
+              >
+                <table className="w-full">
+                  <thead>
+                    <tr
+                      style={{
+                        background: "var(--app-table-header-bg)",
+                        borderBottom:
+                          "1px solid var(--app-table-header-border)",
+                      }}
+                    >
+                      <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                        Personel
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                        DIA Anahtarı
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                        Çarpan
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {workersData.workers.map((w, i) => (
+                      <tr
+                        key={w.workerId}
+                        style={{
+                          background:
+                            i % 2 === 0
+                              ? "var(--app-row-even)"
+                              : "var(--app-row-odd)",
+                          borderBottom:
+                            i < workersData.workers.length - 1
+                              ? "1px solid var(--app-row-border)"
+                              : "none",
+                        }}
+                      >
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-foreground">
+                            {w.workerName}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {w.diaKey}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-sm font-mono text-foreground">
+                              ×{w.multiplier}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 gap-3">
+                <ClockIcon className="w-8 h-8 text-muted-foreground/40" />
+                <p className="text-sm font-mono text-muted-foreground">
+                  Bu projeye atanmış personel yok
+                </p>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Workers Section */}
+      {/* Calculations Section — outside main wrapper */}
+      <div className="px-4 pb-4 sm:px-8 sm:pb-8 bg-background font-sans">
         <div
-          className="rounded-2xl p-4 sm:p-8"
+          className="rounded-2xl p-4 sm:p-8 overflow-hidden"
           style={{
-            background: "linear-gradient(160deg, #111111 0%, #0e0e0e 100%)",
-            border: "1px solid #1f1f1f",
-            boxShadow: "0 0 0 1px #161616, 0 24px 80px rgba(0,0,0,0.8)",
+            background: "var(--app-panel-bg)",
+            border: "1px solid var(--app-panel-border)",
+            boxShadow: "var(--app-panel-shadow)",
           }}
         >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2
-                className="text-lg font-semibold text-[#e0e0e0]"
+                className="text-lg font-semibold text-foreground"
                 style={{ letterSpacing: "-0.02em" }}
               >
-                Personeller
+                Hesaplamalar
               </h2>
-              <p className="text-sm font-mono text-[#383838]">
-                {workersData && (
-                  <span>{workersData.workers.length} personel</span>
-                )}
+              <p className="text-sm font-mono text-muted-foreground">
+                {calculations
+                  ? `${calculations.length} personel`
+                  : "Yükleniyor..."}
               </p>
             </div>
-            <EditWorkersSheet
-              projectId={project.id}
-              currentWorkers={workersData?.workers ?? []}
-              allWorkers={allWorkersData?.workers ?? []}
-              hourDefinitions={hourDefinitionsData?.hourDefinitions ?? []}
-              onSuccess={() => mutateWorkers()}
-            />
+            <Button
+              size="sm"
+              className="cursor-pointer gap-1.5"
+              onClick={() => mutateCalculations()}
+              disabled={calculationsLoading}
+            >
+              {calculationsLoading ? (
+                <Loader2Icon className="animate-spin w-4 h-4" />
+              ) : (
+                <>
+                  <RefreshCwIcon className="w-3.5 h-3.5" /> Yenile
+                </>
+              )}
+            </Button>
           </div>
 
-          {workersLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2Icon className="animate-spin text-[#383838]" />
+          {calculations && calculations.length > 0 ? (
+            <div className="overflow-x-auto">
+              <DataTable columns={columns} data={calculations} />
             </div>
-          ) : workersData && workersData.workers.length > 0 ? (
-            <div
-              className="rounded-xl overflow-hidden"
-              style={{ border: "1px solid #1f1f1f" }}
-            >
-              <table className="w-full">
-                <thead>
-                  <tr
-                    style={{
-                      background:
-                        "linear-gradient(135deg,#141414 0%,#1c1c1c 100%)",
-                      borderBottom: "1px solid #2a2a2a",
-                    }}
-                  >
-                    <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
-                      Personel
-                    </th>
-                    <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
-                      DIA Anahtarı
-                    </th>
-                    <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
-                      Çarpan
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {workersData.workers.map((w, i) => (
-                    <tr
-                      key={w.workerId}
-                      style={{
-                        background: i % 2 === 0 ? "#0e0e0e" : "#111111",
-                        borderBottom:
-                          i < workersData.workers.length - 1
-                            ? "1px solid #1a1a1a"
-                            : "none",
-                      }}
-                    >
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-[#c8c8c8]">
-                          {w.workerName}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-xs font-mono text-[#404040]">
-                          {w.diaKey}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <ClockIcon className="w-3.5 h-3.5 text-[#404040]" />
-                          <span className="text-sm font-mono text-[#c8c8c8]">
-                            ×{w.multiplier}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
+          ) : calculations && calculations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <ClockIcon className="w-8 h-8 text-[#2a2a2a]" />
-              <p className="text-sm font-mono text-[#383838]">
-                Bu projeye atanmış personel yok
+              <ClockIcon className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-sm font-mono text-muted-foreground">
+                Hesaplanacak veri bulunamadı
               </p>
             </div>
-          )}
+          ) : null}
         </div>
-
       </div>
-    </div>
-
-    {/* Calculations Section — outside main wrapper */}
-    <div className="px-4 pb-4 sm:px-8 sm:pb-8 bg-[#0a0a0a] font-sans">
-      <div
-        className="rounded-2xl p-4 sm:p-8 overflow-hidden"
-        style={{
-          background: "linear-gradient(160deg, #111111 0%, #0e0e0e 100%)",
-          border: "1px solid #1f1f1f",
-          boxShadow: "0 0 0 1px #161616, 0 24px 80px rgba(0,0,0,0.8)",
-        }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2
-              className="text-lg font-semibold text-[#e0e0e0]"
-              style={{ letterSpacing: "-0.02em" }}
-            >
-              Hesaplamalar
-            </h2>
-            <p className="text-sm font-mono text-[#383838]">
-              {calculations
-                ? `${calculations.length} personel`
-                : "Hesaplamak için butona basın"}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            className="cursor-pointer gap-1.5"
-            onClick={handleCalculate}
-            disabled={calculationsLoading}
-          >
-            {calculationsLoading ? (
-              <Loader2Icon className="animate-spin w-4 h-4" />
-            ) : (
-              <>
-                <PlayIcon className="w-3.5 h-3.5" />
-                Hesapla
-              </>
-            )}
-          </Button>
-        </div>
-
-        {calculations && calculations.length > 0 ? (
-          <div className="overflow-x-auto">
-            <DataTable columns={columns} data={calculations} />
-          </div>
-        ) : calculations && calculations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 gap-3">
-            <ClockIcon className="w-8 h-8 text-[#2a2a2a]" />
-            <p className="text-sm font-mono text-[#383838]">
-              Hesaplanacak veri bulunamadı
-            </p>
-          </div>
-        ) : null}
-      </div>
-    </div>
     </div>
   );
 }

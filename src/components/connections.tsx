@@ -269,7 +269,7 @@ function EditConnectionDialog({
         <Button
           size="icon-sm"
           variant="ghost"
-          className="cursor-pointer text-[#727272]"
+          className="cursor-pointer text-muted-foreground"
         >
           <PencilIcon />
         </Button>
@@ -404,7 +404,7 @@ function DeleteConnectionButton({
         <Button
           size="icon-sm"
           variant="ghost"
-          className="cursor-pointer text-[#727272] hover:text-red-400"
+          className="cursor-pointer text-muted-foreground hover:text-red-400"
         >
           <Trash2Icon />
         </Button>
@@ -413,7 +413,7 @@ function DeleteConnectionButton({
         <AlertDialogHeader>
           <AlertDialogTitle>Bağlantıyı sil</AlertDialogTitle>
           <AlertDialogDescription>
-            <span className="font-semibold text-[#e0e0e0]">
+            <span className="font-semibold text-foreground">
               {connection.name}
             </span>{" "}
             bağlantısını silmek istediğinizden emin misiniz? Bu işlem geri
@@ -451,25 +451,25 @@ export default function Connections() {
   }, [error]);
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 bg-[#0a0a0a] font-sans">
+    <div className="min-h-screen p-4 sm:p-8 bg-background font-sans">
       <div
         className="max-w-5xl mx-auto rounded-2xl p-4 sm:p-8"
         style={{
-          background: "linear-gradient(160deg, #111111 0%, #0e0e0e 100%)",
-          border: "1px solid #1f1f1f",
-          boxShadow: "0 0 0 1px #161616, 0 24px 80px rgba(0,0,0,0.8)",
+          background: "var(--app-panel-bg)",
+          border: "1px solid var(--app-panel-border)",
+          boxShadow: "var(--app-panel-shadow)",
         }}
       >
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1
-              className="text-2xl font-semibold tracking-tight mb-1 text-[#e0e0e0]"
+              className="text-2xl font-semibold tracking-tight mb-1 text-foreground"
               style={{ letterSpacing: "-0.03em" }}
             >
               DIA Bağlantıları
             </h1>
-            <p className="text-sm font-mono text-[#383838]">
+            <p className="text-sm font-mono text-muted-foreground">
               {data && <span>{data.connections.length} bağlantı</span>}
             </p>
           </div>
@@ -479,35 +479,34 @@ export default function Connections() {
         {/* Table */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2Icon className="animate-spin text-[#383838]" />
+            <Loader2Icon className="animate-spin text-muted-foreground" />
           </div>
         ) : data && data.connections.length > 0 ? (
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: "1px solid #1f1f1f" }}
+            style={{ border: "1px solid var(--app-panel-border)" }}
           >
             <table className="w-full">
               <thead>
                 <tr
                   style={{
-                    background:
-                      "linear-gradient(135deg,#141414 0%,#1c1c1c 100%)",
-                    borderBottom: "1px solid #2a2a2a",
+                    background: "var(--app-table-header-bg)",
+                    borderBottom: "1px solid var(--app-table-header-border)",
                   }}
                 >
-                  <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                     Ad
                   </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                     Sunucu Kodu
                   </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                     Kullanıcı
                   </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                     Firma
                   </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-[#525252] tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                     Dönem
                   </th>
                   <th className="px-4 py-3" />
@@ -518,39 +517,39 @@ export default function Connections() {
                   <tr
                     key={connection.id}
                     style={{
-                      background: i % 2 === 0 ? "#0e0e0e" : "#111111",
+                      background: i % 2 === 0 ? "var(--app-row-even)" : "var(--app-row-odd)",
                       borderBottom:
                         i < data.connections.length - 1
-                          ? "1px solid #1a1a1a"
+                          ? "1px solid var(--app-row-border)"
                           : "none",
                     }}
-                    className="transition-colors hover:bg-[#161616]"
+                    className="transition-colors hover:[background:var(--app-row-hover)]"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <PlugIcon className="w-3.5 h-3.5 text-[#404040] flex-shrink-0" />
-                        <span className="text-sm text-[#c8c8c8] font-medium">
+                        <PlugIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-sm text-foreground font-medium">
                           {connection.name}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-mono text-[#525252]">
+                      <span className="text-sm font-mono text-muted-foreground">
                         {connection.diaServerCode}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-mono text-[#525252]">
+                      <span className="text-sm font-mono text-muted-foreground">
                         {connection.diaUsername}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-mono text-[#525252]">
+                      <span className="text-sm font-mono text-muted-foreground">
                         {connection.diaFirmCode}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-mono text-[#525252]">
+                      <span className="text-sm font-mono text-muted-foreground">
                         {connection.diaPeriodCode ?? 0}
                       </span>
                     </td>
@@ -573,8 +572,8 @@ export default function Connections() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <PlugIcon className="w-8 h-8 text-[#2a2a2a]" />
-            <p className="text-sm font-mono text-[#383838]">
+            <PlugIcon className="w-8 h-8 text-muted-foreground/40" />
+            <p className="text-sm font-mono text-muted-foreground">
               Henüz bağlantı yok
             </p>
           </div>
