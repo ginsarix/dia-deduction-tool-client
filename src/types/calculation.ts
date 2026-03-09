@@ -38,5 +38,6 @@ export type CalculationResult = {
 
 export type GetCalculationsResponse = {
   message: string;
+  originalTallies: CalculationResult[];
   calculations: CalculationResult[];
 };

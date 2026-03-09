@@ -297,6 +297,7 @@ export default function Workers() {
   const {
     data: workersData,
     isLoading: workersLoading,
+    isValidating: workersValidating,
     error: workersError,
     mutate: mutateWorkers,
   } = useSWR<GetWorkersResponse>(`${API_BASE_URL}/workers`, fetcher);
@@ -359,7 +360,7 @@ export default function Workers() {
         </div>
 
         {/* Table */}
-        {workersLoading ? (
+        {workersLoading || workersValidating ? (
           <div className="flex items-center justify-center py-16">
             <Loader2Icon className="animate-spin text-muted-foreground" />
           </div>

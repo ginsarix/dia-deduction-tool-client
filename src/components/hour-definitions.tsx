@@ -184,7 +184,7 @@ function DeleteHourDefinitionButton({
 }
 
 export default function HourDefinitions() {
-  const { data, isLoading, error, mutate } = useSWR<GetHourDefinitionsResponse>(
+  const { data, isLoading, isValidating, error, mutate } = useSWR<GetHourDefinitionsResponse>(
     `${API_BASE_URL}/hour-definitions`,
     fetcher,
   );
@@ -222,7 +222,7 @@ export default function HourDefinitions() {
         </div>
 
         {/* Table */}
-        {isLoading ? (
+        {isLoading || isValidating ? (
           <div className="flex items-center justify-center py-16">
             <Loader2Icon className="animate-spin text-muted-foreground" />
           </div>

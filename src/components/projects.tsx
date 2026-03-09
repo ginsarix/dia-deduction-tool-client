@@ -6,7 +6,6 @@ import {
   IdCardLanyardIcon,
   Loader2Icon,
   PlusIcon,
-  Settings2Icon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -89,12 +88,12 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
 
   const navigate = useNavigate();
 
-  const { data: connectionsData, isLoading: connectionsLoading } =
+  const { data: connectionsData, isLoading: connectionsLoading, isValidating: connectionsValidating } =
     useSWR<GetConnectionsResponse>(
       open ? `${API_BASE_URL}/connections` : null,
       fetcher,
     );
-  const { data: workersData, isLoading: workersLoading } =
+  const { data: workersData, isLoading: workersLoading, isValidating: workersValidating } =
     useSWR<GetWorkersResponse>(
       open ? `${API_BASE_URL}/workers` : null,
       fetcher,
@@ -102,6 +101,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
   const {
     data: hourDefsData,
     isLoading: hourDefsLoading,
+    isValidating: hourDefsValidating,
     mutate: mutateHourDefs,
   } = useSWR<GetHourDefinitionsResponse>(
     open ? `${API_BASE_URL}/hour-definitions` : null,
@@ -338,7 +338,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                 </div>
                 <Field>
                   <FieldLabel>Bağlantı</FieldLabel>
-                  {connectionsLoading ? (
+                  {connectionsLoading || connectionsValidating ? (
                     <p className="text-sm font-mono text-muted-foreground">
                       Bağlantı yükleniyor…
                     </p>
@@ -396,7 +396,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                   <span className="text-xs font-mono text-muted-foreground flex-shrink-0">
                     Saat tanımlaması ekle
                   </span>
-                  {hourDefsLoading ? (
+                  {hourDefsLoading || hourDefsValidating ? (
                     <Loader2Icon className="animate-spin w-3.5 h-3.5 text-muted-foreground" />
                   ) : (
                     <div className="flex items-center gap-1">
@@ -446,7 +446,7 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                   )}
                 </div>
 
-                {workersLoading ? (
+                {workersLoading || workersValidating ? (
                   <div className="flex items-center justify-center py-6">
                     <Loader2Icon className="animate-spin text-muted-foreground" />
                   </div>
@@ -474,7 +474,9 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                           key={worker.id}
                           className="rounded-lg transition-colors"
                           style={{
-                            background: isSelected ? "var(--app-row-odd)" : "var(--app-row-even)",
+                            background: isSelected
+                              ? "var(--app-row-odd)"
+                              : "var(--app-row-even)",
                             border: isSelected
                               ? "1px solid var(--app-table-header-border)"
                               : "1px solid var(--app-row-border)",
@@ -507,13 +509,15 @@ function CreateProjectSheet({ onSuccess }: { onSuccess: () => void }) {
                           {isSelected && (
                             <div
                               className="px-4 pb-3"
-                              style={{ borderTop: "1px solid var(--app-panel-border)" }}
+                              style={{
+                                borderTop: "1px solid var(--app-panel-border)",
+                              }}
                             >
                               <div className="flex items-center gap-3 pt-3">
                                 <span className="text-xs font-mono text-muted-foreground flex-shrink-0">
                                   Saat tanımlaması
                                 </span>
-                                {hourDefsLoading ? (
+                                {hourDefsLoading || hourDefsValidating ? (
                                   <Loader2Icon className="animate-spin w-3.5 h-3.5 text-muted-foreground" />
                                 ) : hourDefinitions.length === 0 ? (
                                   <span className="text-xs font-mono text-muted-foreground">
@@ -598,8 +602,12 @@ function ProjectCard({ project }: ProjectCardProps) {
       )}
       style={{
         background: hovered ? "var(--app-card-bg-hover)" : "var(--app-card-bg)",
-        borderColor: hovered ? "var(--app-card-border-hover)" : "var(--app-card-border)",
-        boxShadow: hovered ? "var(--app-card-shadow-hover)" : "var(--app-card-shadow)",
+        borderColor: hovered
+          ? "var(--app-card-border-hover)"
+          : "var(--app-card-border)",
+        boxShadow: hovered
+          ? "var(--app-card-shadow-hover)"
+          : "var(--app-card-shadow)",
       }}
     >
       {/* Top accent line */}
@@ -654,7 +662,9 @@ function ProjectCard({ project }: ProjectCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IdCardLanyardIcon className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-mono text-muted-foreground">Personel:</span>
+              <span className="text-xs font-mono text-muted-foreground">
+                Personel:
+              </span>
               <Badge
                 variant="outline"
                 className="text-xs px-2 py-0 h-5 font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
@@ -679,7 +689,7 @@ function ProjectCard({ project }: ProjectCardProps) {
 }
 
 export default function Projects() {
-  const { data, isLoading, error, mutate } = useSWR<GetProjectsResponse>(
+  const { data, isLoading, isValidating, error, mutate } = useSWR<GetProjectsResponse>(
     `${API_BASE_URL}/projects`,
     fetcher,
   );
@@ -717,7 +727,7 @@ export default function Projects() {
         </div>
 
         {/* Grid */}
-        {data && !isLoading ? (
+        {data && !(isLoading || isValidating) ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {data.projects.map((d) => (
               <ProjectCard key={d.project.id} project={d} />

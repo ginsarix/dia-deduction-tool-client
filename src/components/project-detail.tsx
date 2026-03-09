@@ -567,6 +567,7 @@ export default function ProjectDetail() {
   const {
     data: projectData,
     isLoading: projectLoading,
+    isValidating: projectValidating,
     error: projectError,
     mutate: mutateProject,
   } = useSWR<GetProjectResponse>(
@@ -582,6 +583,7 @@ export default function ProjectDetail() {
   const {
     data: workersData,
     isLoading: workersLoading,
+    isValidating: workersValidating,
     mutate: mutateWorkers,
   } = useSWR<GetProjectWorkersResponse>(
     id ? `${API_BASE_URL}/projects/${id}/workers` : null,
@@ -610,11 +612,13 @@ export default function ProjectDetail() {
   const {
     data: calculationsData,
     isLoading: calculationsLoading,
+    isValidating: calculationsValidating,
     mutate: mutateCalculations,
   } = useSWR<GetCalculationsResponse>(
     id ? `${API_BASE_URL}/projects/${id}/calculations` : null,
     fetcher,
   );
+  const originalTallies = calculationsData?.originalTallies ?? null;
   const calculations = calculationsData?.calculations ?? null;
 
   const [deletingProject, setDeletingProject] = useState(false);
@@ -633,7 +637,7 @@ export default function ProjectDetail() {
     }
   };
 
-  if (projectLoading) {
+  if (projectLoading || projectValidating) {
     return (
       <div className="min-h-screen p-4 sm:p-8 bg-background font-sans flex items-center justify-center">
         <Loader2Icon className="animate-spin text-muted-foreground" />
@@ -828,7 +832,7 @@ export default function ProjectDetail() {
               />
             </div>
 
-            {workersLoading ? (
+            {workersLoading || workersValidating ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2Icon className="animate-spin text-muted-foreground" />
               </div>
@@ -907,6 +911,45 @@ export default function ProjectDetail() {
         </div>
       </div>
 
+      {/* Original Tallies Section — outside main wrapper */}
+      <div className="px-4 pb-4 sm:px-8 sm:pb-8 bg-background font-sans">
+        <div
+          className="rounded-2xl p-4 sm:p-8 overflow-hidden"
+          style={{
+            background: "var(--app-panel-bg)",
+            border: "1px solid var(--app-panel-border)",
+            boxShadow: "var(--app-panel-shadow)",
+          }}
+        >
+          <div className="mb-6">
+            <h2
+              className="text-lg font-semibold text-foreground"
+              style={{ letterSpacing: "-0.02em" }}
+            >
+              Ham Puantaj
+            </h2>
+            <p className="text-sm font-mono text-muted-foreground">
+              {originalTallies
+                ? `${originalTallies.length} personel`
+                : "Yükleniyor..."}
+            </p>
+          </div>
+
+          {originalTallies && originalTallies.length > 0 ? (
+            <div className="overflow-x-auto">
+              <DataTable columns={columns} data={originalTallies} />
+            </div>
+          ) : originalTallies && originalTallies.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-3">
+              <ClockIcon className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-sm font-mono text-muted-foreground">
+                Puantaj verisi bulunamadı
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
       {/* Calculations Section — outside main wrapper */}
       <div className="px-4 pb-4 sm:px-8 sm:pb-8 bg-background font-sans">
         <div
@@ -935,9 +978,9 @@ export default function ProjectDetail() {
               size="sm"
               className="cursor-pointer gap-1.5"
               onClick={() => mutateCalculations()}
-              disabled={calculationsLoading}
+              disabled={calculationsLoading || calculationsValidating}
             >
-              {calculationsLoading ? (
+              {calculationsLoading || calculationsValidating ? (
                 <Loader2Icon className="animate-spin w-4 h-4" />
               ) : (
                 <>

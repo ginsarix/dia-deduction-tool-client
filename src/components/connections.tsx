@@ -439,7 +439,7 @@ function DeleteConnectionButton({
 }
 
 export default function Connections() {
-  const { data, isLoading, error, mutate } = useSWR<GetConnectionsResponse>(
+  const { data, isLoading, isValidating, error, mutate } = useSWR<GetConnectionsResponse>(
     `${API_BASE_URL}/connections`,
     fetcher,
   );
@@ -477,7 +477,7 @@ export default function Connections() {
         </div>
 
         {/* Table */}
-        {isLoading ? (
+        {isLoading || isValidating ? (
           <div className="flex items-center justify-center py-16">
             <Loader2Icon className="animate-spin text-muted-foreground" />
           </div>

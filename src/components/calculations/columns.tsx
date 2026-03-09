@@ -35,11 +35,6 @@ export const columns: ColumnDef<CalculationResult>[] = [
     ),
   },
 
-  // Gün Sayıları
-  numCol("toplamsigortagun", "Toplam Sig. Günü"),
-  numCol("argefaaliyetgunsayisi", "AR-GE Faaliyet Günü"),
-  numCol("argegelirvergisigunsayisi", "AR-GE G.V. Günü"),
-
   // Ücret
   numCol("aylikbrutkazanc", "Aylık Brüt Kazanç"),
   numCol("argebrutucret", "AR-GE Brüt Ücret"),
