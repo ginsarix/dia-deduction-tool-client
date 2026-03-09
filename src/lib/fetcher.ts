@@ -1,13 +1,13 @@
-export const fetcher = (...args: Parameters<typeof fetch>) => {
+export const fetcher = async (...args: Parameters<typeof fetch>) => {
   const [url, config] = args;
 
-  return fetch(url, {
+  const res = await fetch(url, {
     ...config,
     credentials: "include",
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
   });
+  if (!res.ok) {
+    const body = await res.json();
+    throw new Error(body?.message ?? "HTTP error!");
+  }
+  return await res.json();
 };

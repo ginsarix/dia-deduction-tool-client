@@ -34,6 +34,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -560,6 +568,21 @@ function EditWorkersSheet({
   );
 }
 
+const MONTHS = [
+  { label: "Ocak", value: "1" },
+  { label: "Şubat", value: "2" },
+  { label: "Mart", value: "3" },
+  { label: "Nisan", value: "4" },
+  { label: "Mayıs", value: "5" },
+  { label: "Haziran", value: "6" },
+  { label: "Temmuz", value: "7" },
+  { label: "Ağustos", value: "8" },
+  { label: "Eylül", value: "9" },
+  { label: "Ekim", value: "10" },
+  { label: "Kasım", value: "11" },
+  { label: "Aralık", value: "12" },
+];
+
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -609,13 +632,20 @@ export default function ProjectDetail() {
   const connections = connectionsData?.connections ?? [];
   const connectionMap = new Map(connections.map((c) => [c.id, c.name]));
 
+  const [selectedMonth, setSelectedMonth] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
+
   const {
     data: calculationsData,
     isLoading: calculationsLoading,
     isValidating: calculationsValidating,
     mutate: mutateCalculations,
   } = useSWR<GetCalculationsResponse>(
-    id ? `${API_BASE_URL}/projects/${id}/calculations` : null,
+    id
+      ? `${API_BASE_URL}/projects/${id}/calculations${selectedMonth ? `/${selectedMonth.value}` : ""}`
+      : null,
     fetcher,
   );
   const originalTallies = calculationsData?.originalTallies ?? null;
@@ -911,6 +941,47 @@ export default function ProjectDetail() {
         </div>
       </div>
 
+      {/* Controls bar — above both tally/calculation panels */}
+      <div className="px-4 pb-4 sm:px-8 sm:pb-4 bg-background font-sans flex items-center gap-3">
+        <Combobox
+          items={MONTHS}
+          itemToStringValue={(m) => m.label}
+          value={selectedMonth}
+          onValueChange={setSelectedMonth}
+        >
+          <ComboboxInput
+            className="w-48"
+            placeholder="Tüm aylar"
+            showClear={!!selectedMonth}
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>Ay bulunamadı</ComboboxEmpty>
+            <ComboboxList>
+              {(month) => (
+                <ComboboxItem key={month.value} value={month}>
+                  {month.label}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+
+        <Button
+          size="sm"
+          className="cursor-pointer gap-1.5"
+          onClick={() => mutateCalculations()}
+          disabled={calculationsLoading || calculationsValidating}
+        >
+          {calculationsLoading || calculationsValidating ? (
+            <Loader2Icon className="animate-spin w-4 h-4" />
+          ) : (
+            <>
+              <RefreshCwIcon className="w-3.5 h-3.5" /> Yenile
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Original Tallies Section — outside main wrapper */}
       <div className="px-4 pb-4 sm:px-8 sm:pb-8 bg-background font-sans">
         <div
@@ -960,34 +1031,18 @@ export default function ProjectDetail() {
             boxShadow: "var(--app-panel-shadow)",
           }}
         >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2
-                className="text-lg font-semibold text-foreground"
-                style={{ letterSpacing: "-0.02em" }}
-              >
-                Hesaplamalar
-              </h2>
-              <p className="text-sm font-mono text-muted-foreground">
-                {calculations
-                  ? `${calculations.length} personel`
-                  : "Yükleniyor..."}
-              </p>
-            </div>
-            <Button
-              size="sm"
-              className="cursor-pointer gap-1.5"
-              onClick={() => mutateCalculations()}
-              disabled={calculationsLoading || calculationsValidating}
+          <div className="mb-6">
+            <h2
+              className="text-lg font-semibold text-foreground"
+              style={{ letterSpacing: "-0.02em" }}
             >
-              {calculationsLoading || calculationsValidating ? (
-                <Loader2Icon className="animate-spin w-4 h-4" />
-              ) : (
-                <>
-                  <RefreshCwIcon className="w-3.5 h-3.5" /> Yenile
-                </>
-              )}
-            </Button>
+              Hesaplamalar
+            </h2>
+            <p className="text-sm font-mono text-muted-foreground">
+              {calculations
+                ? `${calculations.length} personel`
+                : "Yükleniyor..."}
+            </p>
           </div>
 
           {calculations && calculations.length > 0 ? (
