@@ -1,7 +1,7 @@
 import { Loader2Icon } from "lucide-react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
+import { HashRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import "./index.css";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
@@ -58,9 +58,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider storageKey="theme">
       <TooltipProvider>
-        <BrowserRouter>
+        <HashRouter>
           <RoutesComp />
-        </BrowserRouter>
+        </HashRouter>
       </TooltipProvider>
 
       <Toaster />

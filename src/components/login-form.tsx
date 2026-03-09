@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -40,14 +41,16 @@ export function LoginForm({
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = handleSubmit(async (data) => {
-    const result = await authClient.signIn.email(data);
+  const { data: session } = authClient.useSession();
 
-    if (result.error) {
-      toast(result.error.message);
-    } else {
-      navigate("/projects");
+  useEffect(() => {
+    if (session) {
+      navigate("/projects", { replace: true });
     }
+  }, [session, navigate]);
+
+  const onSubmit = handleSubmit(async (data) => {
+    await authClient.signIn.email(data, { onError: (ctx) => {toast(ctx.error.message)} });
   });
 
   return (

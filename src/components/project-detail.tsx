@@ -568,7 +568,9 @@ function EditWorkersSheet({
   );
 }
 
-const MONTHS = [
+type Month = { label: string; value: string };
+
+const MONTHS: Month[] = [
   { label: "Ocak", value: "1" },
   { label: "Şubat", value: "2" },
   { label: "Mart", value: "3" },
@@ -945,7 +947,7 @@ export default function ProjectDetail() {
       <div className="px-4 pb-4 sm:px-8 sm:pb-4 bg-background font-sans flex items-center gap-3">
         <Combobox
           items={MONTHS}
-          itemToStringValue={(m) => m.label}
+          itemToStringValue={(m: Month) => m.label}
           value={selectedMonth}
           onValueChange={setSelectedMonth}
         >
@@ -957,7 +959,7 @@ export default function ProjectDetail() {
           <ComboboxContent>
             <ComboboxEmpty>Ay bulunamadı</ComboboxEmpty>
             <ComboboxList>
-              {(month) => (
+              {(month: Month) => (
                 <ComboboxItem key={month.value} value={month}>
                   {month.label}
                 </ComboboxItem>
