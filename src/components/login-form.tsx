@@ -1,4 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
@@ -19,6 +21,12 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +39,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -82,14 +91,32 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Parola</FieldLabel>
                 </div>
-                <Input
-                  {...register("password")}
-                  id="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  type="password"
-                  required
-                />
+                <InputGroup>
+                  <InputGroupInput
+                    {...register("password")}
+                    id="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    type={showPassword ? "text" : "password"}
+                    required
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      className="cursor-pointer"
+                      size="icon-xs"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Parolayı gizle" : "Parolayı göster"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOffIcon className="pointer-events-none" />
+                      ) : (
+                        <EyeIcon className="pointer-events-none" />
+                      )}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
 
                 <FieldError>{errors.password?.message}</FieldError>
               </Field>
