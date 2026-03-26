@@ -1,5 +1,7 @@
 export type CalculationResult = {
   workerName: string;
+  tc: string;
+  department: string;
   toplamsigortagun: number;
   argefaaliyetgunsayisi: number;
   argegelirvergisigunsayisi: number;
