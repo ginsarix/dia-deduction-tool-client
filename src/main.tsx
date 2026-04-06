@@ -19,7 +19,7 @@ import { authClient } from "./lib/auth-client";
 function ProtectedRoute() {
   const { data: session, isPending } = authClient.useSession();
 
-  if (isPending) {
+  if (isPending && !session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <Loader2Icon className="animate-spin text-[#383838]" />

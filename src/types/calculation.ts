@@ -1,45 +1,58 @@
-export type CalculationResult = {
+export type CalculationRow = {
+  // Worker info
   workerName: string;
   tc: string;
   department: string;
-  toplamsigortagun: number;
-  argefaaliyetgunsayisi: number;
-  argegelirvergisigunsayisi: number;
-  aylikbrutkazanc: number;
-  argebrutucret: number;
-  argebrutkazancfarki: number;
-  toplamiscisskprimtutari: number;
-  issizlikiscipayitutari: number;
-  gelirvergisimatrahi: number;
-  argegelirvergisimatrahi: number;
-  artigvmatrahi: number;
-  gelirvergisitutari: number;
-  argegelirvergisitutari: number;
-  gvistisnatutari: number;
-  asgariucretgvistisnasi: number;
-  argeasgariucretgvistisnasi: number;
-  asgariucretdvistisnasi: number;
-  argeasgariucretdvistisnasi: number;
-  odenecekgelirvergisi: number;
-  damgavergisitutari: number;
-  odenecekdamgavergisi: number;
-  ayliknetkazanc: number;
-  mahsupedilecekagi: number;
-  issizlikisverenpayitutari: number;
-  toplamisverensskprimtutari: number;
-  icratutari: number;
-  nafakatutari: number;
-  bes_kesinti_tutari: number;
-  yemekyardiminet: number;
-  yemekyardimibrut: number;
-  isvozelsagliksigortasibrut: number;
-  isvozelsagliksigortasinet: number;
-  employerCostWithoutIncentive: number;
-  employerCostWithIncentive: number;
-};
+  branch: string;
+  mission: string | null;
 
-export type GetCalculationsResponse = {
-  message: string;
-  originalTallies: CalculationResult[];
-  calculations: CalculationResult[];
+  // Rate inputs (displayed in table)
+  argegun: number;
+  digergun: number;
+  toplamgun: number;
+  bruttemel: number;
+  fazlamesai: number;
+  argeorani: number;
+
+  // Computed: SGK üst sınır
+  gunlukust: number;
+  aylikust: number;
+  argeaylikust: number;
+  s5510aylik: number;
+
+  // Computed: toplam
+  toplambrut: number;
+
+  // Computed: 5510 SGK
+  sgkmatrah: number;
+  sgkisci: number;
+  sgkissizlik: number;
+  sgkisv: number;
+  sgkisvisz: number;
+  sgkindirim: number;
+
+  // Computed: 5746 SGK işveren
+  argesigorta: number;
+  sgkisvarge: number;
+  sgkisvisz2: number;
+  argesgk5: number;
+  sgk5746: number;
+
+  // Computed: 5746 GV stopaj
+  argeucret: number;
+  sgkisci2: number;
+  sgkissizlik2: number;
+  argegvmat: number;
+  gvtutari: number;
+  agi: number;
+  agimahsup: number;
+  terkingv: number;
+  odenecekgv: number;
+
+  // Computed: damga
+  damgaterkin: number;
+
+  // Computed: totals
+  toplamtesvik: number;
+  argemaliyet: number;
 };

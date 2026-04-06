@@ -26,7 +26,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -41,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -49,6 +53,7 @@ import { API_BASE_URL } from "@/config/api";
 import { fetcher } from "@/lib/fetcher";
 import type { GetConnectionsResponse } from "@/types/connection";
 import type { GetWorkersResponse, Worker } from "@/types/worker";
+import { Label } from "./ui/label";
 
 const workerEditSchema = z.object({
   name: z.string().min(1, { error: "Ad gereklidir" }).optional(),
@@ -253,21 +258,52 @@ function SyncWorkersButton({
 }: {
   connectionId: number;
   connectionName: string;
-  onSuccess: () => void;
+  onSuccess: (workers: Worker[]) => void;
 }) {
+  const [modalOpened, setModalOpened] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  type Department = { key: string; name: string };
+  const [selectedDepartmentKey, setSelectedDepartmentKey] = useState<
+    string | null
+  >(null);
+
+  const { data: departmentsData, isValidating: isDepartmentsValidating } =
+    useSWR<{
+      message: string;
+      departments: Department[];
+    }>(
+      modalOpened ? `${API_BASE_URL}/departments/${connectionId}` : null,
+      fetcher,
+    );
 
   const handleSync = async () => {
     setLoading(true);
     try {
-      const data = await fetcher(
-        `${API_BASE_URL}/workers/sync/${connectionId}`,
-        { method: "POST" },
-      );
+      const baseUrl = `${API_BASE_URL}/workers/sync/${connectionId}`;
+      const url = selectedDepartmentKey
+        ? `${baseUrl}/${selectedDepartmentKey}`
+        : baseUrl;
+
+      const data = await fetcher<{
+        message: string;
+        stats: { inserted: number; updated: number; deleted: number };
+        workers: Worker[];
+      }>(url, { method: "POST" });
+      const selectedDepartmentName = departmentsData?.departments.find(
+        (d) => d.key === selectedDepartmentKey,
+      )?.name;
+
+      const { inserted, updated, deleted } = data.stats;
+
+      const departmentText = selectedDepartmentName
+        ? `${selectedDepartmentName} departmanından `
+        : "";
+
       toast(
-        `${connectionName}: ${data.stats.inserted} eklendi, ${data.stats.updated} güncellendi, ${data.stats.deleted} silindi`,
+        `${connectionName}: ${departmentText}${inserted} eklendi, ${updated} güncellendi, ${deleted} silindi`,
       );
-      onSuccess();
+      onSuccess(data.workers);
     } catch (err) {
       toast(err instanceof Error ? err.message : "Senkronizasyon başarısız");
     } finally {
@@ -276,20 +312,75 @@ function SyncWorkersButton({
   };
 
   return (
-    <Button
-      size="sm"
-      variant="ghost"
-      className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground"
-      onClick={handleSync}
-      disabled={loading}
-    >
-      {loading ? (
-        <Loader2Icon className="animate-spin w-3.5 h-3.5" />
-      ) : (
-        <RefreshCwIcon className="w-3.5 h-3.5" />
-      )}
-      {connectionName}
-    </Button>
+    <Dialog open={modalOpened} onOpenChange={setModalOpened}>
+      <DialogTrigger asChild>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <RefreshCwIcon className="w-3.5 h-3.5" />
+          {connectionName}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-sm">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await handleSync();
+            setModalOpened(false);
+          }}
+          className="contents"
+        >
+          <DialogHeader>
+            <DialogTitle>Departman Seçiniz</DialogTitle>
+            <DialogDescription>
+              Sadece seçilen departmana ait personeller eşleştirilecektir
+            </DialogDescription>
+          </DialogHeader>
+          <Field>
+            <Label>Departman</Label>
+
+            <Select
+              value={selectedDepartmentKey ?? "all"}
+              onValueChange={(v) =>
+                setSelectedDepartmentKey(v !== "all" ? v : null)
+              }
+              disabled={isDepartmentsValidating}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Departman seçiniz" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup id="department">
+                  <SelectItem value={"all"}>Hepsi</SelectItem>
+                  {departmentsData?.departments.map((d) => (
+                    <SelectItem key={d.key} value={d.key}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                İptal
+              </Button>
+            </DialogClose>
+            <Button type="submit" className="cursor-pointer" disabled={loading}>
+              {loading ? (
+                <Loader2Icon className="animate-spin w-3.5 h-3.5" />
+              ) : (
+                "Devam"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -321,145 +412,195 @@ export default function Workers() {
   const connectionMap = new Map(connections.map((c) => [c.id, c.name]));
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 bg-background font-sans">
-      <div
-        className="max-w-5xl mx-auto rounded-2xl p-4 sm:p-8"
-        style={{
-          background: "var(--app-panel-bg)",
-          border: "1px solid var(--app-panel-border)",
-          boxShadow: "var(--app-panel-shadow)",
-        }}
-      >
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1
-              className="text-2xl font-semibold tracking-tight mb-1 text-foreground"
-              style={{ letterSpacing: "-0.03em" }}
-            >
-              Personeller
-            </h1>
-            <p className="text-sm font-mono text-muted-foreground">
-              {workersData && (
-                <span>{workersData.workers.length} personel</span>
-              )}
-            </p>
+    <>
+      <div className="min-h-screen p-4 sm:p-8 bg-background font-sans">
+        <div
+          className="max-w-5xl mx-auto rounded-2xl p-4 sm:p-8"
+          style={{
+            background: "var(--app-panel-bg)",
+            border: "1px solid var(--app-panel-border)",
+            boxShadow: "var(--app-panel-shadow)",
+          }}
+        >
+          {/* Header */}
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1
+                className="text-2xl font-semibold tracking-tight mb-1 text-foreground"
+                style={{ letterSpacing: "-0.03em" }}
+              >
+                Personeller
+              </h1>
+              <p className="text-sm font-mono text-muted-foreground">
+                {workersData && (
+                  <span>{workersData.workers.length} personel</span>
+                )}
+              </p>
+            </div>
+            {connections.length > 0 && (
+              <div className="flex items-center gap-1">
+                {connections.map((conn) => (
+                  <SyncWorkersButton
+                    key={conn.id}
+                    connectionId={conn.id}
+                    connectionName={conn.name}
+                    onSuccess={(newWorkers) =>
+                      mutateWorkers(
+                        { message: "", workers: newWorkers },
+                        { revalidate: false },
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          {connections.length > 0 && (
-            <div className="flex items-center gap-1">
-              {connections.map((conn) => (
-                <SyncWorkersButton
-                  key={conn.id}
-                  connectionId={conn.id}
-                  connectionName={conn.name}
-                  onSuccess={() => mutateWorkers()}
-                />
-              ))}
+
+          {/* Table */}
+          {workersLoading || workersValidating ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2Icon className="animate-spin text-muted-foreground" />
+            </div>
+          ) : workersData && workersData.workers.length > 0 ? (
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{ border: "1px solid var(--app-panel-border)" }}
+            >
+              <table className="w-full">
+                <thead>
+                  <tr
+                    style={{
+                      background: "var(--app-table-header-bg)",
+                      borderBottom: "1px solid var(--app-table-header-border)",
+                    }}
+                  >
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      TC
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      Ad Soyad
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      Departman
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      Şube
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      Görevi
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      DIA Anahtarı
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                      Bağlantı
+                    </th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {workersData.workers.map((worker, i) => (
+                    <tr
+                      key={worker.id}
+                      style={{
+                        background:
+                          i % 2 === 0
+                            ? "var(--app-row-even)"
+                            : "var(--app-row-odd)",
+                        borderBottom:
+                          i < workersData.workers.length - 1
+                            ? "1px solid var(--app-row-border)"
+                            : "none",
+                      }}
+                      className="transition-colors hover:[background:var(--app-row-hover)]"
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground font-medium">
+                            {worker.tc}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <IdCardLanyardIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm text-foreground font-medium">
+                            {worker.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground font-medium">
+                            {worker.department}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground font-medium">
+                            {worker.branch}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground font-medium">
+                            {worker.mission}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm font-mono text-muted-foreground">
+                          {worker.diaKey}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          variant="outline"
+                          className="text-xs px-2 py-0 h-5 font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
+                        >
+                          {connectionMap.get(worker.connectionId) ??
+                            `#${worker.connectionId}`}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <EditWorkerDialog
+                            worker={worker}
+                            connections={connections}
+                            onSuccess={() => mutateWorkers()}
+                          />
+                          <DeleteWorkerButton
+                            worker={worker}
+                            onSuccess={() => mutateWorkers()}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <IdCardLanyardIcon className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-sm font-mono text-muted-foreground">
+                Henüz personel yok
+              </p>
+              {connections.length > 0 ? (
+                <p className="text-xs font-mono text-muted-foreground/40">
+                  Personelleri çekmek için yukarıdan senkronize edin
+                </p>
+              ) : (
+                <p className="text-xs font-mono text-muted-foreground/40">
+                  Önce bir bağlantı oluşturun
+                </p>
+              )}
             </div>
           )}
         </div>
-
-        {/* Table */}
-        {workersLoading || workersValidating ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2Icon className="animate-spin text-muted-foreground" />
-          </div>
-        ) : workersData && workersData.workers.length > 0 ? (
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ border: "1px solid var(--app-panel-border)" }}
-          >
-            <table className="w-full">
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--app-table-header-bg)",
-                    borderBottom: "1px solid var(--app-table-header-border)",
-                  }}
-                >
-                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
-                    Ad Soyad
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
-                    DIA Anahtarı
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
-                    Bağlantı
-                  </th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {workersData.workers.map((worker, i) => (
-                  <tr
-                    key={worker.id}
-                    style={{
-                      background: i % 2 === 0 ? "var(--app-row-even)" : "var(--app-row-odd)",
-                      borderBottom:
-                        i < workersData.workers.length - 1
-                          ? "1px solid var(--app-row-border)"
-                          : "none",
-                    }}
-                    className="transition-colors hover:[background:var(--app-row-hover)]"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <IdCardLanyardIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                        <span className="text-sm text-foreground font-medium">
-                          {worker.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm font-mono text-muted-foreground">
-                        {worker.diaKey}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant="outline"
-                        className="text-xs px-2 py-0 h-5 font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
-                      >
-                        {connectionMap.get(worker.connectionId) ??
-                          `#${worker.connectionId}`}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <EditWorkerDialog
-                          worker={worker}
-                          connections={connections}
-                          onSuccess={() => mutateWorkers()}
-                        />
-                        <DeleteWorkerButton
-                          worker={worker}
-                          onSuccess={() => mutateWorkers()}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <IdCardLanyardIcon className="w-8 h-8 text-muted-foreground/40" />
-            <p className="text-sm font-mono text-muted-foreground">
-              Henüz personel yok
-            </p>
-            {connections.length > 0 ? (
-              <p className="text-xs font-mono text-muted-foreground/40">
-                Personelleri çekmek için yukarıdan senkronize edin
-              </p>
-            ) : (
-              <p className="text-xs font-mono text-muted-foreground/40">
-                Önce bir bağlantı oluşturun
-              </p>
-            )}
-          </div>
-        )}
       </div>
-    </div>
+    </>
   );
 }

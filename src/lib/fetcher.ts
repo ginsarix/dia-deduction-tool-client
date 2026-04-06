@@ -1,4 +1,4 @@
-export const fetcher = async (...args: Parameters<typeof fetch>) => {
+export const fetcher = async <T>(...args: Parameters<typeof fetch>) => {
   const [url, config] = args;
 
   const res = await fetch(url, {
@@ -9,5 +9,5 @@ export const fetcher = async (...args: Parameters<typeof fetch>) => {
     const body = await res.json();
     throw new Error(body?.message ?? "HTTP error!");
   }
-  return await res.json();
+  return (await res.json()) as T;
 };
