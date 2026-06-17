@@ -26,10 +26,10 @@ function computeCalculations(
     const toplamgun = pw.totalWorkDays ?? 0;
     const bruttemel = (pw.grossBaseSalary ?? 0) * hourMultiplier; // affected by the hour multiplier
     const fazlamesai = (pw.overtimeAdditionalPay ?? 0) * hourMultiplier; // affected by the hour multiplier
-    const aylikust = pw.monthlyUpperLimit ?? 0 * hourMultiplier; // affected by the hour multiplier
-    const argeorani = pw.argeExemptionRate ?? 0 * hourMultiplier; // affected by the hour multiplier
-    const agi = pw.agi ?? 0 * hourMultiplier; // affected by the hour multiplier
-    const gvtutari = pw.incomeTaxAmount ?? 0 * hourMultiplier; // affected by the hour multiplier
+    const aylikust = (pw.monthlyUpperLimit ?? 0) * hourMultiplier; // affected by the hour multiplier
+    const argeorani = (pw.argeExemptionRate ?? 0) * hourMultiplier; // affected by the hour multiplier
+    const agi = (pw.agi ?? 0) * hourMultiplier; // affected by the hour multiplier
+    const gvtutari = (pw.incomeTaxAmount ?? 0) * hourMultiplier; // affected by the hour multiplier
 
     const gunlukust = aylikust / 30 * hourMultiplier; // affected by the hour multiplier
     const argeaylikust = argegun * gunlukust * hourMultiplier; // affected by the hour multiplier
