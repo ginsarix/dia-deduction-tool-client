@@ -5,6 +5,7 @@ import { HashRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import "./index.css";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
+import Board from "./components/board";
 import Connections from "./components/connections";
 import HourDefinitions from "./components/hour-definitions";
 import ProjectDetail from "./components/project-detail";
@@ -41,6 +42,7 @@ function RoutesComp() {
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route index path="/" element={<App />} />
+          <Route path="board" element={<Board />} />
           <Route path="projects">
             <Route index element={<Projects />} />
             <Route path=":id" element={<ProjectDetail />} />
