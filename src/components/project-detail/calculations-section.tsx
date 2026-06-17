@@ -26,41 +26,41 @@ function computeCalculations(
     const toplamgun = pw.totalWorkDays ?? 0;
     const bruttemel = (pw.grossBaseSalary ?? 0) * hourMultiplier; // affected by the hour multiplier
     const fazlamesai = (pw.overtimeAdditionalPay ?? 0) * hourMultiplier; // affected by the hour multiplier
-    const aylikust = pw.monthlyUpperLimit ?? 0;
-    const argeorani = pw.argeExemptionRate ?? 0;
-    const agi = pw.agi ?? 0;
-    const gvtutari = pw.incomeTaxAmount ?? 0;
+    const aylikust = pw.monthlyUpperLimit ?? 0 * hourMultiplier; // affected by the hour multiplier
+    const argeorani = pw.argeExemptionRate ?? 0 * hourMultiplier; // affected by the hour multiplier
+    const agi = pw.agi ?? 0 * hourMultiplier; // affected by the hour multiplier
+    const gvtutari = pw.incomeTaxAmount ?? 0 * hourMultiplier; // affected by the hour multiplier
 
-    const gunlukust = aylikust / 30;
-    const argeaylikust = argegun * gunlukust;
-    const s5510aylik = digergun * gunlukust;
-    const toplambrut = bruttemel + fazlamesai;
+    const gunlukust = aylikust / 30 * hourMultiplier; // affected by the hour multiplier
+    const argeaylikust = argegun * gunlukust * hourMultiplier; // affected by the hour multiplier
+    const s5510aylik = digergun * gunlukust * hourMultiplier; // affected by the hour multiplier
+    const toplambrut = bruttemel + fazlamesai * hourMultiplier; // affected by the hour multiplier
     const sgkmatrah =
-      toplamgun === 0 ? 0 : (bruttemel / toplamgun) * digergun + fazlamesai;
-    const sgkisci = sgkmatrah * r_isci;
-    const sgkissizlik = sgkmatrah * r_issizlik;
-    const sgkisv = sgkmatrah * r_isv;
-    const sgkisvisz = sgkmatrah * r_isvisz;
-    const sgkindirim = sgkmatrah * 0.05;
-    const argesigorta = toplamgun === 0 ? 0 : (argegun / toplamgun) * bruttemel;
-    const sgkisvarge = argesigorta * r_isv_arge;
-    const sgkisvisz2 = argesigorta * r_isvisz_arge;
-    const argesgk5 = argesigorta * 0.05;
-    const sgk5746 = (argesigorta * 0.1675) / 2;
-    const argeucret = toplamgun === 0 ? 0 : (argegun / toplamgun) * bruttemel;
-    const sgkisci2 = argeucret * r_isci2;
-    const sgkissizlik2 = argeucret * r_issizlik2;
-    const argegvmat = argeucret - sgkisci2 - sgkissizlik2;
-    const agimahsup = gvtutari - agi;
-    const terkingv = agimahsup * argeorani;
-    const odenecekgv = agimahsup - terkingv;
+      toplamgun === 0 ? 0 : (bruttemel / toplamgun) * digergun + fazlamesai * hourMultiplier; // affected by the hour multiplier
+    const sgkisci = sgkmatrah * r_isci * hourMultiplier; // affected by the hour multiplier
+    const sgkissizlik = sgkmatrah * r_issizlik * hourMultiplier; // affected by the hour multiplier
+    const sgkisv = sgkmatrah * r_isv * hourMultiplier; // affected by the hour multiplier
+    const sgkisvisz = sgkmatrah * r_isvisz * hourMultiplier; // affected by the hour multiplier
+    const sgkindirim = sgkmatrah * 0.05 * hourMultiplier; // affected by the hour multiplier
+    const argesigorta = toplamgun === 0 ? 0 : (argegun / toplamgun) * bruttemel * hourMultiplier; // affected by the hour multiplier
+    const sgkisvarge = argesigorta * r_isv_arge * hourMultiplier; // affected by the hour multiplier
+    const sgkisvisz2 = argesigorta * r_isvisz_arge * hourMultiplier; // affected by the hour multiplier
+    const argesgk5 = argesigorta * 0.05 * hourMultiplier; // affected by the hour multiplier
+    const sgk5746 = (argesigorta * 0.1675) / 2 * hourMultiplier; // affected by the hour multiplier
+    const argeucret = toplamgun === 0 ? 0 : (argegun / toplamgun) * bruttemel * hourMultiplier; // affected by the hour multiplier
+    const sgkisci2 = argeucret * r_isci2 * hourMultiplier; // affected by the hour multiplier
+    const sgkissizlik2 = argeucret * r_issizlik2 * hourMultiplier; // affected by the hour multiplier
+    const argegvmat = argeucret - sgkisci2 - sgkissizlik2 * hourMultiplier; // affected by the hour multiplier
+    const agimahsup = gvtutari - agi * hourMultiplier; // affected by the hour multiplier
+    const terkingv = agimahsup * argeorani * hourMultiplier; // affected by the hour multiplier
+    const odenecekgv = agimahsup - terkingv * hourMultiplier; // affected by the hour multiplier
     const damgaterkin =
       toplamgun > 0
         ? ((bruttemel * 0.00759 - 250.7) / toplamgun) * argegun * hourMultiplier
         : 0; // affected by the hour multiplier
-    const toplamtesvik = sgk5746 + terkingv + damgaterkin;
+    const toplamtesvik = sgk5746 + terkingv + damgaterkin * hourMultiplier; // affected by the hour multiplier
     const argemaliyet =
-      argeucret + sgkisvarge + sgkisvisz2 - argesgk5 - sgk5746;
+      argeucret + sgkisvarge + sgkisvisz2 - argesgk5 - sgk5746 * hourMultiplier; // affected by the hour multiplier
 
     return {
       workerName: w.worker.name,
