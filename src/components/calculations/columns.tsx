@@ -17,11 +17,6 @@ const fmtNum = new Intl.NumberFormat("tr-TR", {
   maximumFractionDigits: 2,
 });
 
-const fmtRate = new Intl.NumberFormat("tr-TR", {
-  minimumFractionDigits: 4,
-  maximumFractionDigits: 4,
-});
-
 function numCol(
   key: keyof CalculationRow,
   header: string,
@@ -56,22 +51,6 @@ function numCol(
 //   };
 // }
 
-function rateCol(
-  key: keyof CalculationRow,
-  header: string,
-): ColumnDef<CalculationRow> {
-  return {
-    accessorKey: key,
-    header: () => (
-      <span className="whitespace-nowrap font-mono text-xs">{header}</span>
-    ),
-    cell: ({ row }) => (
-      <span className="tabular-nums font-mono text-xs block text-right">
-        {fmtRate.format(row.getValue(key) as number)}
-      </span>
-    ),
-  };
-}
 
 export const columns: ColumnDef<CalculationRow>[] = [
   {
