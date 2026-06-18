@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const routeLabels: Record<string, string> = {
-  board: "Atama Tahtası",
   projects: "Projeler",
   connections: "Bağlantılar",
   workers: "Personeller",

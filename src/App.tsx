@@ -1,5 +1,5 @@
 import { Navigate } from "react-router";
 
 export default function App() {
-  return <Navigate to="/board" replace />;
+  return <Navigate to="/projects" replace />;
 }

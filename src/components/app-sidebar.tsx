@@ -3,7 +3,6 @@
 import {
   ClockIcon,
   IdCardLanyardIcon,
-  LayoutGridIcon,
   PlugIcon,
   SquareTerminal,
 } from "lucide-react";
@@ -28,16 +27,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     navMain: [
       {
-        title: "Atama Tahtası",
-        url: "/board",
-        icon: LayoutGridIcon,
-        isActive: true,
-        items: [],
-      },
-      {
         title: "Projeler",
         url: "/projects",
         icon: SquareTerminal,
+        isActive: true,
         items: [],
       },
       {
