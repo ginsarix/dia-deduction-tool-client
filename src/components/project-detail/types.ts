@@ -1,23 +1,25 @@
-import type { GetProjectsResponse } from "@/types/project";
+import type { GetMonthsResponse } from "@/types/month";
 
-export type Project = GetProjectsResponse["projects"][number]["project"];
+export type Month = GetMonthsResponse["months"][number]["month"];
 
-export type GetProjectResponse = {
+export type GetMonthResponse = {
   message: string;
-  project: Project;
+  month: Month;
 };
 
-export type ProjectWorker = {
+export type MonthWorker = {
   workerId: number;
   workerName: string;
   diaKey: string;
   hourDefinitionId: number;
   multiplier: number;
+  projectId: number;
+  projectTitle: string;
 };
 
-export type GetProjectWorkersResponse = {
+export type GetMonthWorkersResponse = {
   message: string;
-  workers: ProjectWorker[];
+  workers: MonthWorker[];
 };
 
 export type WorkerRateFields = {
@@ -32,7 +34,7 @@ export type WorkerRateFields = {
   argeExemptionRate: number;
 };
 
-export type ProjectRateFields = {
+export type MonthRateFields = {
   sgk5510EmployeeShareRate: number;
   sgk5510EmployeeUnemploymentShareRate: number;
   sgk5510EmployerShareRate: number;
@@ -47,7 +49,8 @@ export type GetRatesResponse = {
   message: string;
   rates: {
     workers: Array<{
-      projectWorkers: {
+      monthWorkers: {
+        projectId: number;
         argeCenterWorkDays: number | null;
         otherActivitiesWorkDays: number | null;
         totalWorkDays: number | null;
@@ -58,6 +61,7 @@ export type GetRatesResponse = {
         agi: number | null;
         monthlyUpperLimit: number | null;
       };
+      project: { id: number; title: string };
       hourDefinition: {
         id: number;
         multiplier: number;
@@ -74,7 +78,7 @@ export type GetRatesResponse = {
         mission: string | null;
       };
     }>;
-    project: {
+    month: {
       sgk5510EmployeeShareRate: number | null;
       sgk5510EmployeeUnemploymentShareRate: number | null;
       sgk5510EmployerShareRate: number | null;

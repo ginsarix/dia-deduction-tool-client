@@ -5,7 +5,7 @@ import {
   Loader2Icon,
   Trash2Icon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -21,23 +21,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/config/api";
 import { fetcher } from "@/lib/fetcher";
-import type { GetConnectionsResponse } from "@/types/connection";
 import type { GetHourDefinitionsResponse } from "@/types/hour-definition";
+import type { GetProjectsResponse } from "@/types/project";
 import type { GetWorkersResponse } from "@/types/worker";
-import { CalculationsSection } from "./calculations-section";
 import { EditProjectDialog } from "./edit-project-dialog";
 import { EditWorkersSheet } from "./edit-workers-sheet";
+import { ProjectSection } from "./project-section";
 import { RatesSection } from "./rates-section";
+import { TotalsSection } from "./totals-section";
 import type {
-  GetProjectResponse,
-  GetProjectWorkersResponse,
+  GetMonthResponse,
+  GetMonthWorkersResponse,
   GetRatesResponse,
-  ProjectRateFields,
-  WorkerRateFields,
+  MonthRateFields,
 } from "./types";
 
 export default function ProjectDetail() {
@@ -45,17 +44,12 @@ export default function ProjectDetail() {
   const navigate = useNavigate();
 
   const {
-    data: projectData,
-    isLoading: projectLoading,
-    error: projectError,
-    mutate: mutateProject,
-  } = useSWR<GetProjectResponse>(
-    id ? `${API_BASE_URL}/projects/${id}` : null,
-    fetcher,
-  );
-
-  const { data: connectionsData } = useSWR<GetConnectionsResponse>(
-    `${API_BASE_URL}/connections`,
+    data: monthData,
+    isLoading: monthLoading,
+    error: monthError,
+    mutate: mutateMonth,
+  } = useSWR<GetMonthResponse>(
+    id ? `${API_BASE_URL}/months/${id}` : null,
     fetcher,
   );
 
@@ -64,13 +58,18 @@ export default function ProjectDetail() {
     isLoading: workersLoading,
     isValidating: workersValidating,
     mutate: mutateWorkers,
-  } = useSWR<GetProjectWorkersResponse>(
-    id ? `${API_BASE_URL}/projects/${id}/workers` : null,
+  } = useSWR<GetMonthWorkersResponse>(
+    id ? `${API_BASE_URL}/months/${id}/workers` : null,
     fetcher,
   );
 
   const { data: allWorkersData } = useSWR<GetWorkersResponse>(
     `${API_BASE_URL}/workers`,
+    fetcher,
+  );
+
+  const { data: allProjectsData } = useSWR<GetProjectsResponse>(
+    `${API_BASE_URL}/projects`,
     fetcher,
   );
 
@@ -84,79 +83,46 @@ export default function ProjectDetail() {
     isLoading: ratesLoading,
     mutate: mutateRates,
   } = useSWRImmutable<GetRatesResponse>(
-    id ? `${API_BASE_URL}/projects/${id}/rates` : null,
+    id ? `${API_BASE_URL}/months/${id}/rates` : null,
     fetcher,
   );
 
   useEffect(() => {
-    if (projectError) {
-      toast("Proje yüklenemedi");
+    if (monthError) {
+      toast("Ay yüklenemedi");
     }
-  }, [projectError]);
+  }, [monthError]);
 
-  const [editedRates, setEditedRates] = useState<
-    GetRatesResponse["rates"] | null
-  >(null);
+  const [editedMonthRates, setEditedMonthRates] = useState<MonthRateFields | null>(null);
 
-  const rates = editedRates ?? serverRatesData?.rates;
+  const currentMonthRates = editedMonthRates ?? serverRatesData?.rates.month ?? null;
 
-  const projectRatesChanged = (key: keyof ProjectRateFields, value: number) => {
-    if (!rates) return;
+  const workersByProject = useMemo(() => {
+    if (!serverRatesData) return [];
+    const map = new Map<number, { project: { id: number; title: string }; workers: GetRatesResponse["rates"]["workers"] }>();
+    for (const w of serverRatesData.rates.workers) {
+      const pid = w.project.id;
+      if (!map.has(pid)) map.set(pid, { project: w.project, workers: [] });
+      map.get(pid)!.workers.push(w);
+    }
+    return Array.from(map.values());
+  }, [serverRatesData]);
 
-    const newRates = {
-      ...rates,
-      project: {
-        ...rates.project,
-        [key]: value,
-      },
-    };
+  const [deletingMonth, setDeletingMonth] = useState(false);
 
-    setEditedRates(newRates);
-  };
-
-  const workerRatesChanged = (
-    workerId: number,
-    key: keyof WorkerRateFields,
-    value: number,
-  ) => {
-    if (!rates) return;
-
-    const newRates = {
-      ...rates,
-      workers: rates.workers.map((w) => {
-        if (w.worker.id !== workerId) return w;
-
-        return {
-          ...w,
-          projectWorkers: {
-            ...w.projectWorkers,
-            [key]: value,
-          },
-        };
-      }),
-    };
-
-    setEditedRates(newRates);
-  };
-
-  const connections = connectionsData?.connections ?? [];
-  const connectionMap = new Map(connections.map((c) => [c.id, c.name]));
-
-  const [deletingProject, setDeletingProject] = useState(false);
-
-  const handleDeleteProject = async () => {
-    setDeletingProject(true);
+  const handleDeleteMonth = async () => {
+    setDeletingMonth(true);
     try {
-      await fetcher(`${API_BASE_URL}/projects/${id}`, { method: "DELETE" });
-      toast("Proje silindi");
-      navigate("/projects");
+      await fetcher(`${API_BASE_URL}/months/${id}`, { method: "DELETE" });
+      toast("Ay silindi");
+      navigate("/months");
     } catch (err) {
       toast(err instanceof Error ? err.message : "Bir hata oluştu");
-      setDeletingProject(false);
+      setDeletingMonth(false);
     }
   };
 
-  if (projectLoading) {
+  if (monthLoading) {
     return (
       <div className="min-h-screen p-4 sm:p-8 bg-background font-sans flex items-center justify-center">
         <Loader2Icon className="animate-spin text-muted-foreground" />
@@ -164,17 +130,17 @@ export default function ProjectDetail() {
     );
   }
 
-  if (!projectData?.project) {
+  if (!monthData?.month) {
     return (
       <div className="min-h-screen p-4 sm:p-8 bg-background font-sans flex items-center justify-center">
         <p className="text-sm font-mono text-muted-foreground">
-          Proje bulunamadı
+          Ay bulunamadı
         </p>
       </div>
     );
   }
 
-  const project = projectData.project;
+  const month = monthData.month;
 
   return (
     <div className="min-w-0 bg-background font-sans">
@@ -184,13 +150,13 @@ export default function ProjectDetail() {
             variant="ghost"
             size="sm"
             className="cursor-pointer gap-1.5 text-muted-foreground hover:text-foreground -ml-2"
-            onClick={() => navigate("/projects")}
+            onClick={() => navigate("/months")}
           >
             <ArrowLeftIcon className="w-3.5 h-3.5" />
-            Projelere dön
+            Aylara dön
           </Button>
 
-          {/* Project Info Card */}
+          {/* Month Info Card */}
           <div
             className="rounded-2xl p-4 sm:p-8"
             style={{
@@ -201,40 +167,18 @@ export default function ProjectDetail() {
           >
             <div className="flex items-start justify-between mb-6">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <div
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{
-                      background: "#4ade80",
-                      boxShadow: "0 0 6px #4ade80",
-                    }}
-                  />
-                  <span className="text-xs font-mono tracking-wide text-muted-foreground">
-                    {connectionMap.get(project.connectionId) ??
-                      `Bağlantı #${project.connectionId}`}
-                  </span>
-                </div>
                 <h1
                   className="text-2xl font-semibold text-foreground"
                   style={{ letterSpacing: "-0.03em" }}
                 >
-                  {project.name}
+                  {month.name}
                 </h1>
-                {project.number !== null && (
-                  <Badge
-                    variant="outline"
-                    className="mt-2 text-xs font-mono bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.2)] text-[#4ade80]"
-                  >
-                    Proje No: #{project.number}
-                  </Badge>
-                )}
               </div>
 
               <div className="flex items-center gap-1">
                 <EditProjectDialog
-                  project={project}
-                  connections={connections}
-                  onSuccess={() => mutateProject()}
+                  month={month}
+                  onSuccess={() => mutateMonth()}
                 />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -249,12 +193,12 @@ export default function ProjectDetail() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Projeyi sil</AlertDialogTitle>
+                      <AlertDialogTitle>Ayı sil</AlertDialogTitle>
                       <AlertDialogDescription>
                         <span className="font-semibold text-foreground">
-                          {project.name}
+                          {month.name}
                         </span>{" "}
-                        projesini silmek istediğinizden emin misiniz? Bu işlem
+                        ayını silmek istediğinizden emin misiniz? Bu işlem
                         geri alınamaz.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -265,10 +209,10 @@ export default function ProjectDetail() {
                       <AlertDialogAction
                         variant="destructive"
                         className="cursor-pointer"
-                        onClick={handleDeleteProject}
-                        disabled={deletingProject}
+                        onClick={handleDeleteMonth}
+                        disabled={deletingMonth}
                       >
-                        {deletingProject ? (
+                        {deletingMonth ? (
                           <Loader2Icon className="animate-spin w-4 h-4" />
                         ) : (
                           "Sil"
@@ -295,7 +239,7 @@ export default function ProjectDetail() {
                   </span>
                 </div>
                 <p className="text-sm font-mono text-foreground">
-                  {project.startDate}
+                  {month.startDate}
                 </p>
               </div>
               <div
@@ -312,7 +256,7 @@ export default function ProjectDetail() {
                   </span>
                 </div>
                 <p className="text-sm font-mono text-foreground">
-                  {project.endDate}
+                  {month.endDate}
                 </p>
               </div>
             </div>
@@ -342,9 +286,10 @@ export default function ProjectDetail() {
                 </p>
               </div>
               <EditWorkersSheet
-                projectId={project.id}
+                monthId={month.id}
                 currentWorkers={workersData?.workers ?? []}
                 allWorkers={allWorkersData?.workers ?? []}
+                allProjects={allProjectsData?.projects.filter((p) => p.active) ?? []}
                 hourDefinitions={hourDefinitionsData?.hourDefinitions ?? []}
                 onSuccess={async () => {
                   await mutateWorkers();
@@ -375,6 +320,9 @@ export default function ProjectDetail() {
                         Personel
                       </th>
                       <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
+                        Proje
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
                         DIA Anahtarı
                       </th>
                       <th className="text-left px-4 py-3 text-xs font-mono text-muted-foreground tracking-wide">
@@ -385,7 +333,7 @@ export default function ProjectDetail() {
                   <tbody>
                     {workersData.workers.map((w, i) => (
                       <tr
-                        key={w.workerId}
+                        key={`${w.projectId}:${w.workerId}`}
                         style={{
                           background:
                             i % 2 === 0
@@ -400,6 +348,11 @@ export default function ProjectDetail() {
                         <td className="px-4 py-3">
                           <span className="text-sm text-foreground">
                             {w.workerName}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {w.projectTitle}
                           </span>
                         </td>
                         <td className="px-4 py-3">
@@ -424,7 +377,7 @@ export default function ProjectDetail() {
               <div className="flex flex-col items-center justify-center py-8 gap-3">
                 <ClockIcon className="w-8 h-8 text-muted-foreground/40" />
                 <p className="text-sm font-mono text-muted-foreground">
-                  Bu projeye atanmış personel yok
+                  Bu aya atanmış personel yok
                 </p>
               </div>
             )}
@@ -433,13 +386,29 @@ export default function ProjectDetail() {
       </div>
 
       <RatesSection
-        projectId={project.id}
+        monthId={month.id}
         ratesData={serverRatesData}
         ratesLoading={ratesLoading}
-        projectRatesChanged={projectRatesChanged}
-        workerRatesChanged={workerRatesChanged}
+        onRatesChange={setEditedMonthRates}
       />
-      <CalculationsSection ratesData={rates} isLoading={ratesLoading} />
+
+      {workersByProject.map(({ project, workers }) => (
+        <ProjectSection
+          key={project.id}
+          monthId={month.id}
+          project={project}
+          workers={workers}
+          monthRates={currentMonthRates}
+          ratesLoading={ratesLoading}
+          onSaveSuccess={() => mutateRates()}
+        />
+      ))}
+
+      <TotalsSection
+        allWorkers={serverRatesData?.rates.workers ?? []}
+        monthRates={currentMonthRates}
+        isLoading={ratesLoading}
+      />
     </div>
   );
 }

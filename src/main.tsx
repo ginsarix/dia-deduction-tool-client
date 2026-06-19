@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
 import Connections from "./components/connections";
 import HourDefinitions from "./components/hour-definitions";
+import Months from "./components/months";
 import ProjectDetail from "./components/project-detail";
 import Projects from "./components/projects";
 import { ThemeProvider } from "./components/theme-provider";
@@ -41,10 +42,11 @@ function RoutesComp() {
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route index path="/" element={<App />} />
-          <Route path="projects">
-            <Route index element={<Projects />} />
+          <Route path="months">
+            <Route index element={<Months />} />
             <Route path=":id" element={<ProjectDetail />} />
           </Route>
+          <Route path="projects" element={<Projects />} />
           <Route path="connections/:create?" element={<Connections />} />
           <Route path="workers/:sync?" element={<Workers />} />
           <Route path="hour-definitions" element={<HourDefinitions />} />

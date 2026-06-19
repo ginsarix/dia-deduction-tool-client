@@ -1,17 +1,12 @@
 export type GetProjectsResponse = {
   message: string;
   projects: {
-    project: {
-      id: number;
-      name: string;
-      number: number | null;
-      startDate: string;
-      endDate: string;
-      connectionId: number;
-      createdAt: Date;
-      updatedAt: Date;
-    };
-    connectionName: string;
-    workerCount: number;
+    id: number;
+    title: string;
+    startDate: string;
+    endDate: string;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
   }[];
 };

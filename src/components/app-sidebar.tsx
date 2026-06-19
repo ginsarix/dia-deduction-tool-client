@@ -2,6 +2,7 @@
 
 import {
   ClockIcon,
+  FolderIcon,
   IdCardLanyardIcon,
   PlugIcon,
   SquareTerminal,
@@ -27,10 +28,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     navMain: [
       {
-        title: "Projeler",
-        url: "/projects",
+        title: "Aylar",
+        url: "/months",
         icon: SquareTerminal,
         isActive: true,
+        items: [],
+      },
+      {
+        title: "Projeler",
+        url: "/projects",
+        icon: FolderIcon,
         items: [],
       },
       {

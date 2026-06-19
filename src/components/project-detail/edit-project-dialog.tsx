@@ -26,42 +26,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/api";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
-import type { GetConnectionsResponse } from "@/types/connection";
-import type { Project } from "./types";
+import type { Month } from "./types";
 
-const projectEditSchema = z.object({
-  name: z.string().min(1, { error: "Proje adı gereklidir" }).optional(),
-  number: z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? null : Number(v)),
-    z.number().int().nullable().optional(),
-  ),
+const monthEditSchema = z.object({
+  name: z.string().min(1, { error: "Ay adı gereklidir" }).optional(),
   startDate: z
     .string()
     .min(1, { error: "Başlangıç tarihi gereklidir" })
     .optional(),
   endDate: z.string().min(1, { error: "Bitiş tarihi gereklidir" }).optional(),
-  connectionId: z.coerce.number().int().positive().optional(),
 });
 
-type ProjectEditValues = z.infer<typeof projectEditSchema>;
+type MonthEditValues = z.infer<typeof monthEditSchema>;
 
 export function EditProjectDialog({
-  project,
-  connections,
+  month,
   onSuccess,
 }: {
-  project: Project;
-  connections: GetConnectionsResponse["connections"];
+  month: Month;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -74,40 +59,38 @@ export function EditProjectDialog({
     reset,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ProjectEditValues>({
-    resolver: zodResolver(projectEditSchema),
+  } = useForm<MonthEditValues>({
+    resolver: zodResolver(monthEditSchema),
   });
 
   useEffect(() => {
     if (open) {
       reset({
-        name: project.name,
-        number: project.number ?? undefined,
-        startDate: project.startDate,
-        endDate: project.endDate,
-        connectionId: project.connectionId,
+        name: month.name,
+        startDate: month.startDate,
+        endDate: month.endDate,
       });
       setStartDate(
-        project.startDate
-          ? parse(project.startDate, "yyyy-MM-dd", new Date())
+        month.startDate
+          ? parse(month.startDate, "yyyy-MM-dd", new Date())
           : undefined,
       );
       setEndDate(
-        project.endDate
-          ? parse(project.endDate, "yyyy-MM-dd", new Date())
+        month.endDate
+          ? parse(month.endDate, "yyyy-MM-dd", new Date())
           : undefined,
       );
     }
-  }, [open, project, reset]);
+  }, [open, month, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await fetcher(`${API_BASE_URL}/projects/${project.id}`, {
+      await fetcher(`${API_BASE_URL}/months/${month.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      toast("Proje başarıyla güncellendi");
+      toast("Ay başarıyla güncellendi");
       setOpen(false);
       onSuccess();
     } catch (err) {
@@ -129,33 +112,18 @@ export function EditProjectDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Projeyi Düzenle</DialogTitle>
+          <DialogTitle>Ayı Düzenle</DialogTitle>
         </DialogHeader>
         <form noValidate onSubmit={onSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="edit-project-name">Proje Adı</FieldLabel>
+              <FieldLabel htmlFor="edit-month-name">Ay Adı</FieldLabel>
               <Input
                 {...register("name")}
-                id="edit-project-name"
-                placeholder="Proje adı"
+                id="edit-month-name"
+                placeholder="Ay adı"
               />
               <FieldError>{errors.name?.message}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="edit-project-number">
-                Proje Numarası{" "}
-                <span className="text-muted-foreground font-normal">
-                  (opsiyonel)
-                </span>
-              </FieldLabel>
-              <Input
-                {...register("number")}
-                id="edit-project-number"
-                type="number"
-                placeholder="—"
-              />
-              <FieldError>{errors.number?.message}</FieldError>
             </Field>
             <Field>
               <FieldLabel>Başlangıç Tarihi</FieldLabel>
@@ -224,29 +192,6 @@ export function EditProjectDialog({
                 </PopoverContent>
               </Popover>
               <FieldError>{errors.endDate?.message}</FieldError>
-            </Field>
-            <Field>
-              <FieldLabel>Bağlantı</FieldLabel>
-              <Select
-                defaultValue={String(project.connectionId)}
-                onValueChange={(val) =>
-                  setValue("connectionId", Number(val), {
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {connections.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError>{errors.connectionId?.message}</FieldError>
             </Field>
             <Field>
               <Button
