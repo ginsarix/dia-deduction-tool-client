@@ -32,6 +32,7 @@ import { EditWorkersSheet } from "./edit-workers-sheet";
 import { ProjectSection } from "./project-section";
 import { RatesSection } from "./rates-section";
 import { TotalsSection } from "./totals-section";
+import { WorkerRatesSection } from "./worker-rates-section";
 import type {
   GetMonthResponse,
   GetMonthWorkersResponse,
@@ -392,15 +393,20 @@ export default function ProjectDetail() {
         onRatesChange={setEditedMonthRates}
       />
 
+      <WorkerRatesSection
+        monthId={month.id}
+        workers={serverRatesData?.rates.workers ?? []}
+        ratesLoading={ratesLoading}
+        onSaveSuccess={async () => { await mutateRates(); }}
+      />
+
       {workersByProject.map(({ project, workers }) => (
         <ProjectSection
           key={project.id}
-          monthId={month.id}
           project={project}
           workers={workers}
           monthRates={currentMonthRates}
           ratesLoading={ratesLoading}
-          onSaveSuccess={() => mutateRates()}
         />
       ))}
 

@@ -25,9 +25,11 @@ const fmtRate = new Intl.NumberFormat("tr-TR", {
 function numCol(
   key: keyof CalculationRow,
   header: string,
+  color?: string,
 ): ColumnDef<CalculationRow> {
   return {
     accessorKey: key,
+    meta: color ? { headerBg: color } : undefined,
     header: () => (
       <span className="whitespace-nowrap font-mono text-xs">{header}</span>
     ),
@@ -72,6 +74,20 @@ function rateCol(
     ),
   };
 }
+
+export type GroupCell = { label?: string; color?: string; colSpan: number };
+
+// Matches column order: Personel(1) + Brüt+Fazla(2) + SGKüst(3) + Toplam(1) + 5510(6) + 5746SGK(5) + 5746GV(7) + Damga+Teşvik+Maliyet(3)
+export const columnGroupRow: GroupCell[] = [
+  { colSpan: 1 },
+  { colSpan: 2 },
+  { label: "SGK Aylık Ve Günlük Üst Sınır İşlemleri", color: "#3f3f3f", colSpan: 3 },
+  { colSpan: 1 },
+  { label: "5510 SAYILI KANUN KAPSAMINDA MATRAH VE %5'LİK İNDİRİM", color: "#00af50", colSpan: 6 },
+  { label: "5746 SAYILI KANUN KAPSAMINDA  SGK İŞVEREN PAYI HESAPLAMA", color: "#523126", colSpan: 5 },
+  { label: "5746 SAYILI KANUN KAPSAMINDA GELİR VERGİSİ STOPAJ HESAPLAMA", color: "#3f3f3f", colSpan: 7 },
+  { colSpan: 3 },
+];
 
 export const columns: ColumnDef<CalculationRow>[] = [
   {
@@ -176,44 +192,44 @@ export const columns: ColumnDef<CalculationRow>[] = [
   },
 
   // Çalışma & Ücret
-  numCol("bruttemel", "Brüt Temel Ücret"),
-  numCol("fazlamesai", "Fazla Mesai"),
+  numCol("bruttemel", "Brüt Temel Ücret", "#3f3f3f"),
+  numCol("fazlamesai", "Fazla Mesai", "#3f3f3f"),
 
   // SGK Üst Sınır
-  numCol("gunlukust", "Günlük Üst Sınır"),
-  numCol("argeaylikust", "Arge Aylık Üst Sınır"),
-  numCol("s5510aylik", "5510 Aylık Üst Sınır"),
+  numCol("gunlukust", "Günlük Üst Sınır", "#fffe00"),
+  numCol("argeaylikust", "Arge Aylık Üst Sınır", "#fffe00"),
+  numCol("s5510aylik", "5510 Aylık Üst Sınır", "#fffe00"),
 
-  numCol("toplambrut", "Toplam Brüt Ücret"),
+  numCol("toplambrut", "Toplam Brüt Ücret", "#3f3f3f"),
 
   // 5510 SGK
-  numCol("sgkmatrah", "5510 SGK Matrahı"),
-  numCol("sgkisci", "SGK İşçi Payı"),
-  numCol("sgkissizlik", "SGK İşçi İşsizlik"),
-  numCol("sgkisv", "SGK İşv. Payı"),
-  numCol("sgkisvisz", "SGK İşv. İşsizlik"),
-  numCol("sgkindirim", "SGK İndirim %5"),
+  numCol("sgkmatrah", "5510 SGK Matrahı", "#00af50"),
+  numCol("sgkisci", "SGK İşçi Payı", "#00af50"),
+  numCol("sgkissizlik", "SGK İşçi İşsizlik", "#00af50"),
+  numCol("sgkisv", "SGK İşv. Payı", "#00af50"),
+  numCol("sgkisvisz", "SGK İşv. İşsizlik", "#00af50"),
+  numCol("sgkindirim", "SGK İndirim %5", "#00af50"),
 
   // 5746 SGK İşveren
-  numCol("argesigorta", "Arge Ücret (Sigorta Matrahı)"),
-  numCol("sgkisvarge", "SGK İşv. Payı (Arge)"),
-  numCol("sgkisvisz2", "SGK İşv. İşsizlik (Arge)"),
-  numCol("argesgk5", "Arge SGK İndirim %5"),
-  numCol("sgk5746", "5746 SGK İndirim %50"),
+  numCol("argesigorta", "Arge Ücret (Sigorta Matrahı)", "#523126"),
+  numCol("sgkisvarge", "SGK İşv. Payı (Arge)", "#523126"),
+  numCol("sgkisvisz2", "SGK İşv. İşsizlik (Arge)", "#523126"),
+  numCol("argesgk5", "Arge SGK İndirim %5", "#523126"),
+  numCol("sgk5746", "5746 SGK İndirim %50", "#523126"),
 
   // 5746 GV Stopaj
-  numCol("argeucret", "Arge Ücret"),
-  numCol("sgkisci2", "SGK İşçi Payı (GV)"),
-  numCol("sgkissizlik2", "SGK İşçi İşsizlik (GV)"),
-  numCol("argegvmat", "Arge GV Matrahı"),
-  numCol("agimahsup", "AGİ Mahsubu Sonrası GV"),
-  numCol("terkingv", "5746 Terkin GV"),
-  numCol("odenecekgv", "Ödenecek GV Stopaj"),
+  numCol("argeucret", "Arge Ücret", "#3f3f3f"),
+  numCol("sgkisci2", "SGK İşçi Payı (GV)", "#3f3f3f"),
+  numCol("sgkissizlik2", "SGK İşçi İşsizlik (GV)", "#3f3f3f"),
+  numCol("argegvmat", "Arge GV Matrahı", "#3f3f3f"),
+  numCol("agimahsup", "AGİ Mahsubu Sonrası GV", "#3f3f3f"),
+  numCol("terkingv", "5746 Terkin GV", "#786f57"),
+  numCol("odenecekgv", "Ödenecek GV Stopaj", "#3f3f3f"),
 
   // Damga
-  numCol("damgaterkin", "Terkin Damga Vergisi"),
+  numCol("damgaterkin", "Terkin Damga Vergisi", "#3f3f3f"),
 
   // Özet
-  numCol("toplamtesvik", "Toplam Teşvik (SGK,GV,DV)"),
-  numCol("argemaliyet", "Arge İşv. Maliyeti"),
+  numCol("toplamtesvik", "Toplam Teşvik (SGK,GV,DV)", "#3f3f3f"),
+  numCol("argemaliyet", "Arge İşv. Maliyeti", "#3f3f3f"),
 ];

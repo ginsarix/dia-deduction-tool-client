@@ -1,5 +1,5 @@
 import { ClockIcon, Loader2Icon } from "lucide-react";
-import { columns } from "@/components/calculations/columns";
+import { columnGroupRow, columns } from "@/components/calculations/columns";
 import { DataTable } from "@/components/calculations/data-table";
 import type { CalculationRow } from "@/types/calculation";
 import type { GetRatesResponse } from "./types";
@@ -125,7 +125,7 @@ export function CalculationsSection({
         </div>
       ) : calculations && calculations.length > 0 ? (
         <div className="overflow-x-auto">
-          <DataTable columns={columns} data={calculations} />
+          <DataTable columns={columns} data={calculations} groupRow={columnGroupRow} />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-8 gap-3">

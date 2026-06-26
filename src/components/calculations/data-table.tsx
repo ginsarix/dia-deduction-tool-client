@@ -15,14 +15,18 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
+type GroupCell = { label?: string; color?: string; colSpan: number };
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  groupRow?: GroupCell[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  groupRow,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -34,23 +38,45 @@ export function DataTable<TData, TValue>({
     <div className="overflow-hidden rounded-md border">
       <Table>
         <TableHeader>
+          {groupRow && (
+            <TableRow>
+              {groupRow.map((cell, i) => {
+                const textColor = cell.color === "#fffe00" ? "#000" : cell.color ? "#fff" : undefined;
+                return (
+                  <TableHead
+                    key={i}
+                    colSpan={cell.colSpan > 1 ? cell.colSpan : undefined}
+                    className={cn(cell.label && "text-center")}
+                    style={cell.color ? { background: cell.color, color: textColor } : undefined}
+                  >
+                    {cell.label && (
+                      <span className="whitespace-nowrap font-mono text-xs font-semibold">
+                        {cell.label}
+                      </span>
+                    )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          )}
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
-                const sticky = (header.column.columnDef.meta as { sticky?: boolean } | undefined)?.sticky;
+                const meta = header.column.columnDef.meta as { sticky?: boolean; headerBg?: string } | undefined;
+                const sticky = meta?.sticky;
+                const headerBg = meta?.headerBg;
+                const headerText = headerBg === "#fffe00" ? "#000" : headerBg ? "#fff" : undefined;
                 return (
                   <TableHead
                     key={header.id}
                     className={cn(
                       sticky && "sticky left-0 z-10 bg-[var(--app-sticky-header)] after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-border",
                     )}
+                    style={headerBg ? { background: headerBg, color: headerText } : undefined}
                   >
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 );
               })}
