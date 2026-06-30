@@ -2,6 +2,7 @@ import { Loader2Icon } from "lucide-react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { HashRouter, Navigate, Outlet, Route, Routes } from "react-router";
+import { SWRConfig } from "swr";
 import "./index.css";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
@@ -58,14 +59,16 @@ function RoutesComp() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider storageKey="theme">
-      <TooltipProvider>
-        <HashRouter>
-          <RoutesComp />
-        </HashRouter>
-      </TooltipProvider>
+    <SWRConfig value={{ revalidateOnFocus: false, revalidateOnReconnect: false, revalidateIfStale: false }}>
+      <ThemeProvider storageKey="theme">
+        <TooltipProvider>
+          <HashRouter>
+            <RoutesComp />
+          </HashRouter>
+        </TooltipProvider>
 
-      <Toaster />
-    </ThemeProvider>
+        <Toaster />
+      </ThemeProvider>
+    </SWRConfig>
   </StrictMode>,
 );
